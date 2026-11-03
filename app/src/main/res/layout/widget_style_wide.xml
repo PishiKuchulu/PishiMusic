@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Wide (4x2): the cover fills the left of the card edge to edge; on the right, tinted from the
+     cover, then title, artist, album and the controls, centred.
+     widget_bg is one bitmap (the card or the cover); text and the cover are bitmaps from
+     WidgetRender; glyphs are tinted at bind time. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/widget_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@null"
+        android:scaleType="fitXY" />
+
+    <LinearLayout
+        android:id="@+id/widget_empty_group"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/widget_empty_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@null" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/widget_content_group"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/widget_art"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:scaleType="fitXY"
+            android:contentDescription="@null" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingStart="16dp"
+            android:paddingTop="22dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="10dp">
+
+            <!-- 22dp above and 10dp below, not 16 and 16: the controls' glyphs sit about 12dp
+                 above the bottom of their touch boxes, so equal padding looked top-heavy. -->
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <ImageView
+                android:id="@+id/widget_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@null" />
+
+            <ImageView
+                android:id="@+id/widget_artist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@null"
+                android:layout_marginTop="2dp" />
+
+            <ImageView
+                android:id="@+id/widget_album"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@null"
+                android:layout_marginTop="2dp" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/widget_prev"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:contentDescription="@string/desc_previous"
+                    android:padding="8dp"
+                    android:src="@drawable/ic_widget_rewind" />
+
+                <ImageView
+                    android:id="@+id/widget_play"
+                    android:layout_width="52dp"
+                    android:layout_height="52dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
+                    android:contentDescription="@string/cmp_play"
+                    android:padding="6dp"
+                    android:src="@drawable/ic_widget_play" />
+
+                <ImageView
+                    android:id="@+id/widget_next"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:contentDescription="@string/desc_next"
+                    android:padding="8dp"
+                    android:src="@drawable/ic_widget_forward" />
+            </LinearLayout>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

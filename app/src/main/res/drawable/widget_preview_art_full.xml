@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Picker previews only: a full-bleed cover, 28dp corners. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <corners android:radius="28dp" />
+    <gradient android:angle="270" android:startColor="#FFC8553A" android:endColor="#FF4A1712" />
+</shape>
