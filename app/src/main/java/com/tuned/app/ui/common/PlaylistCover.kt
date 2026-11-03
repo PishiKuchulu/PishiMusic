@@ -1,0 +1,106 @@
+package com.tuned.app.ui.common
+
+import androidx.compose.material.icons.filled.LibraryMusic
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import com.tuned.app.data.artwork.ArtworkNormalizer
+import com.tuned.app.data.playlist.SavedPlaylist
+
+/** Custom/remote cover first, then the earliest track carrying real artwork metadata. */
+@Composable
+fun PlaylistCover(
+    playlist: SavedPlaylist,
+    modifier: Modifier = Modifier,
+    cornerRadius: Dp = 14.dp,
+) {
+    val context = LocalContext.current
+    val shape = RoundedCornerShape(cornerRadius)
+    val directCover = playlist.customCoverUri?.takeIf(String::isNotBlank)
+        ?: playlist.remoteArtworkUrl?.takeIf(String::isNotBlank)
+    var lastSuccessfulPainter by remember(playlist.id) { mutableStateOf<Painter?>(null) }
+    var lastValidCover by remember(playlist.id) { mutableStateOf(directCover?.takeIf(String::isNotBlank)) }
+    LaunchedEffect(directCover) {
+        if (!directCover.isNullOrBlank()) {
+            lastValidCover = directCover
+        }
+    }
+    val effectiveCover = directCover?.takeIf(String::isNotBlank) ?: lastValidCover
+    var customCoverFailed by remember(effectiveCover) { mutableStateOf(false) }
+
+    val automaticTrack = remember(playlist.tracks) {
+        playlist.tracks.firstOrNull { ArtworkNormalizer.isRealImage(it.artworkUrl) }
+            ?: playlist.tracks.firstOrNull()
+    }
+
+    // Built-in lists get their own mark on the accent until they have artwork; others a note.
+    val builtInIcon = when (playlist.mode) {
+        com.tuned.app.data.playlist.LIKED_SONGS_MODE -> Icons.Filled.Favorite
+        com.tuned.app.data.playlist.LOCAL_SONGS_MODE -> Icons.Filled.LibraryMusic
+        else -> null
+    }
+    Box(
+        modifier = modifier
+            .clip(shape)
+            .background(
+                if (builtInIcon != null) MaterialTheme.colorScheme.primaryContainer
+                else MaterialTheme.colorScheme.surfaceContainerHighest,
+            ),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(
+            builtInIcon ?: Icons.Filled.MusicNote,
+            contentDescription = null,
+            tint = if (builtInIcon != null) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        if (!effectiveCover.isNullOrBlank() && (!customCoverFailed || lastSuccessfulPainter != null)) {
+            val imageRequest = remember(effectiveCover, context) {
+                ImageRequest.Builder(context)
+                    .data(effectiveCover)
+                    .size(512)
+                    .crossfade(false)
+                    .build()
+            }
+            AsyncImage(
+                model = imageRequest,
+                contentDescription = "${playlist.title} cover",
+                contentScale = ContentScale.Crop,
+                placeholder = lastSuccessfulPainter,
+                error = lastSuccessfulPainter,
+                onSuccess = { lastSuccessfulPainter = it.painter },
+                onError = { customCoverFailed = true },
+                modifier = Modifier.fillMaxSize(),
+            )
+        } else if (automaticTrack != null) {
+            ArtworkImage(
+                name = automaticTrack.name,
+                artist = automaticTrack.artist,
+                embeddedUrl = automaticTrack.artworkUrl,
+                fallbackIcon = Icons.Filled.MusicNote,
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
+    }
+}
