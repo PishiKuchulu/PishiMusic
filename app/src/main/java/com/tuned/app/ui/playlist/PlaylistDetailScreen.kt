@@ -1,0 +1,1467 @@
+package com.tuned.app.ui.playlist
+
+import com.tuned.app.ui.common.DetailAccentWash
+import com.tuned.app.ui.common.DetailPlayPill
+import com.tuned.app.ui.common.DetailSideButton
+import com.tuned.app.ui.common.DetailTrackRow
+import com.tuned.app.ui.common.GlassCircleButton
+import com.tuned.app.ui.common.TunedIcons
+import com.tuned.app.ui.common.detailCoverSide
+import com.tuned.app.ui.common.detailHeaderTop
+import com.tuned.app.ui.common.glassFill
+import com.tuned.app.ui.common.glassSurface
+import com.tuned.app.ui.theme.AppShape
+import com.tuned.app.ui.theme.AppType
+import com.tuned.app.ui.theme.Keyline
+import com.tuned.app.ui.common.MediaTile
+import com.tuned.app.ui.theme.Radius
+import com.tuned.app.ui.theme.Sizes
+import com.tuned.app.ui.theme.Space
+import com.tuned.app.ui.theme.tunedColors
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material.icons.rounded.Shuffle
+
+import com.tuned.app.ui.common.barScrim
+import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.scrollBy
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.CloudSync
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.BookmarkAdd
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.DragHandle
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.GraphicEq
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.LockOpen
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material.icons.filled.NearMe
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.PhotoLibrary
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.PushPin
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Shuffle
+import androidx.compose.material.icons.filled.SwapVert
+import androidx.compose.material.icons.rounded.MyLocation
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
+import kotlinx.coroutines.launch
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.tuned.app.data.generate.GeneratedTrack
+import com.tuned.app.data.playlist.LIKED_SONGS_MODE
+import com.tuned.app.data.playlist.LOCAL_SONGS_MODE
+import com.tuned.app.data.generate.isLocalFile
+import com.tuned.app.data.playlist.SavedPlaylist
+import com.tuned.app.data.playlist.isYouTubeOnly
+import com.tuned.app.playback.toPlayableTrack
+import com.tuned.app.ui.common.ArtworkImage
+import com.tuned.app.ui.common.ExpressiveLoadingIndicator
+import com.tuned.app.ui.common.PlaylistCover
+import com.tuned.app.ui.common.TrackContextMenuSheet
+import com.tuned.app.ui.common.TrackMenuCapabilities
+import com.tuned.app.ui.common.TrackMenuTarget
+import com.tuned.app.ui.common.adaptiveContentWidth
+import com.tuned.app.ui.shell.FloatingNavDefaults
+import com.tuned.app.ui.theme.ArtworkShape
+import com.tuned.app.ui.theme.ExpressivePillShape
+import dagger.hilt.android.lifecycle.HiltViewModel
+import java.util.Date
+import javax.inject.Inject
+
+enum class PlaylistTrackSort(val labelRes: Int) {
+    CUSTOM(com.tuned.app.R.string.pd_sort_custom),
+    DATE_ADDED(com.tuned.app.R.string.pd_sort_date),
+    NAME(com.tuned.app.R.string.pd_sort_name),
+    ARTIST(com.tuned.app.R.string.pd_sort_artist),
+    PLAY_TIME(com.tuned.app.R.string.pd_sort_playtime),
+}
+
+/**
+ * Remembers each playlist's last track sort (key = playlist id), so leaving
+ * and reopening a playlist keeps e.g. "Date added ↓" instead of resetting to
+ * Custom order. Plain SharedPreferences: tiny, synchronous, read once per open.
+ */
+internal object PlaylistSortMemory {
+    private const val PREFS = "playlist_track_sort"
+
+    fun load(context: android.content.Context, playlistId: Long): Pair<PlaylistTrackSort, Boolean> {
+        val raw = context.getSharedPreferences(PREFS, android.content.Context.MODE_PRIVATE)
+            .getString(playlistId.toString(), null)
+            ?: return PlaylistTrackSort.CUSTOM to true
+        val sort = PlaylistTrackSort.entries.firstOrNull { it.name == raw.substringBefore(':') }
+            ?: return PlaylistTrackSort.CUSTOM to true
+        return sort to (raw.substringAfter(':', "asc") != "desc")
+    }
+
+    fun save(context: android.content.Context, playlistId: Long, sort: PlaylistTrackSort, ascending: Boolean) {
+        val prefs = context.getSharedPreferences(PREFS, android.content.Context.MODE_PRIVATE).edit()
+        if (sort == PlaylistTrackSort.CUSTOM && ascending) {
+            prefs.remove(playlistId.toString())
+        } else {
+            prefs.putString(playlistId.toString(), "${sort.name}:${if (ascending) "asc" else "desc"}")
+        }
+        prefs.apply()
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.ExperimentalFoundationApi::class)
+private val emptyTrackFolders = kotlinx.coroutines.flow.MutableStateFlow<Map<String, String>>(emptyMap())
+
+@Composable
+fun PlaylistDetailScreen(
+    playlistId: Long,
+    onBack: () -> Unit,
+    onOpenPlaylist: ((Long) -> Unit)? = null,
+    onOpenLocalAlbum: (String) -> Unit = {},
+    viewModel: PlaylistViewModel = hiltViewModel(),
+) {
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    val haptic = LocalHapticFeedback.current
+    val musicPlayer = com.tuned.app.ui.player.LocalMusicPlayer.current
+    val playbackState by musicPlayer.chromeState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(playlistId) {
+        viewModel.loadDetail(playlistId)
+    }
+
+    LaunchedEffect(state.toastMessage) {
+        state.toastMessage?.let { msg ->
+            android.widget.Toast.makeText(context, msg, android.widget.Toast.LENGTH_SHORT).show()
+            viewModel.dismissToast()
+        }
+    }
+
+    val currentFound = state.detailPlaylist?.takeIf { it.id == playlistId }
+        ?: state.playlists.firstOrNull { it.id == playlistId }
+    var cachedPlaylist by remember(playlistId) {
+        mutableStateOf(currentFound)
+    }
+    LaunchedEffect(currentFound) {
+        if (currentFound != null) cachedPlaylist = currentFound
+    }
+    val playlist = currentFound ?: cachedPlaylist
+
+    if (playlist == null) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            ExpressiveLoadingIndicator(message = "Loading playlist...")
+        }
+        return
+    }
+
+    val isThisPlaylistPlaying = playbackState.isPlaying && playbackState.sourceLabel == playlist.title
+    var coverEditorOpen by remember { mutableStateOf(false) }
+    val coverPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) {
+            runCatching {
+                context.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            viewModel.setCustomCover(playlistId, uri.toString())
+        }
+    }
+
+    var menuTarget by remember { mutableStateOf<GeneratedTrack?>(null) }
+    var overflowMenuOpen by remember { mutableStateOf(false) }
+    val syncedPlaylistIds by viewModel.syncedPlaylistIds.collectAsStateWithLifecycle()
+    var sortMenuOpen by remember { mutableStateOf(false) }
+    val savedSort = remember(playlistId) { PlaylistSortMemory.load(context, playlistId) }
+    var currentSort by remember(playlistId) { mutableStateOf(savedSort.first) }
+    var sortAscending by remember(playlistId) { mutableStateOf(savedSort.second) }
+    var isReorderLocked by remember { mutableStateOf(true) }
+    var searchQuery by remember { mutableStateOf("") }
+    var isSearchActive by remember { mutableStateOf(false) }
+
+    // Local songs can be narrowed to one of the folders they came from
+    // (picked folder or device folder) or to one artist, via the
+    // category tabs below.
+    var selectedFolder by rememberSaveable(playlist.id) { mutableStateOf<String?>(null) }
+    var selectedArtist by rememberSaveable(playlist.id) { mutableStateOf<String?>(null) }
+    var localTab by rememberSaveable(playlist.id) { mutableStateOf(LOCAL_TAB_SONGS) }
+    val localSongsViewModel = if (playlist.mode == LOCAL_SONGS_MODE) hiltViewModel<LocalSongsViewModel>() else null
+    val trackFolders by (localSongsViewModel?.trackFolders ?: emptyTrackFolders)
+        .collectAsStateWithLifecycle()
+    val trackDirs by (localSongsViewModel?.trackDirs ?: emptyTrackFolders)
+        .collectAsStateWithLifecycle()
+    val folderTracks = remember(playlist.tracks, selectedFolder, selectedArtist, trackFolders, trackDirs) {
+        var result = playlist.tracks
+        selectedFolder?.let { key ->
+            result = if (key == LOCAL_FOLDER_UNKNOWN_KEY) {
+                result.filter { localFolderKey(it, trackFolders, trackDirs) == null }
+            } else {
+                result.filter { localFolderKey(it, trackFolders, trackDirs) == key }
+            }
+        }
+        selectedArtist?.let { key -> result = result.filter { it.artist.trim().lowercase() == key } }
+        result
+    }
+    val localArtistList = remember(playlist.tracks, playlist.mode) {
+        if (playlist.mode == LOCAL_SONGS_MODE) localArtists(playlist.tracks) else emptyList()
+    }
+    val otherFolderLabel = stringResource(com.tuned.app.R.string.local_folder_other)
+    val localFolderGroups = remember(playlist.tracks, trackFolders, trackDirs, otherFolderLabel) {
+        if (playlist.mode == LOCAL_SONGS_MODE) {
+            localFolderGroups(playlist.tracks, { localFolderKey(it, trackFolders, trackDirs) }) { key ->
+                localFolderLabel(key, localSongsViewModel, otherFolderLabel)
+            }
+        } else {
+            emptyList()
+        }
+    }
+    val localAlbumList = remember(folderTracks, playlist.mode) {
+        if (playlist.mode == LOCAL_SONGS_MODE) localAlbums(folderTracks) else emptyList()
+    }
+    // Sorting is keyed on the list + sort settings ONLY: it used to be
+    // keyed on searchQuery too, so every keystroke re-sorted the whole
+    // library. The filter below runs against precomputed lowercase keys.
+    val sortedTracks = remember(folderTracks, currentSort, sortAscending) {
+        when (currentSort) {
+            PlaylistTrackSort.CUSTOM -> if (sortAscending) folderTracks else folderTracks.reversed()
+            PlaylistTrackSort.DATE_ADDED -> if (sortAscending) folderTracks else folderTracks.reversed()
+            PlaylistTrackSort.NAME -> if (sortAscending) {
+                folderTracks.sortedBy { it.name.lowercase() }
+            } else {
+                folderTracks.sortedByDescending { it.name.lowercase() }
+            }
+            PlaylistTrackSort.ARTIST -> if (sortAscending) {
+                folderTracks.sortedBy { it.artist.lowercase() }
+            } else {
+                folderTracks.sortedByDescending { it.artist.lowercase() }
+            }
+            PlaylistTrackSort.PLAY_TIME -> if (sortAscending) {
+                folderTracks.sortedBy { it.playcount ?: it.listeners ?: 0L }
+            } else {
+                folderTracks.sortedByDescending { it.playcount ?: it.listeners ?: 0L }
+            }
+        }
+    }
+    val displayTracks = remember(sortedTracks, searchQuery) {
+        if (searchQuery.isBlank()) {
+            sortedTracks
+        } else {
+            val q = searchQuery.lowercase()
+            sortedTracks.filter {
+                it.name.lowercase().contains(q) || it.artist.lowercase().contains(q)
+            }
+        }
+    }
+
+    val listState = rememberLazyListState()
+    val dragScope = rememberCoroutineScope()
+    var draggingIndex by remember(playlistId) { mutableIntStateOf(-1) }
+    var dragOffsetY by remember(playlistId) { mutableFloatStateOf(0f) }
+    // Single throttled edge auto-scroll job. The old code launched a fresh
+    // `dragScope.launch { scrollBy() }` on EVERY drag callback inside the edge
+    // zone — dozens of concurrent scrollBy() mutators racing layoutInfo reads
+    // and moveTrack() recompositions, which kills the app at the viewport edge.
+    var edgeScrollJob by remember(playlistId) { mutableStateOf<kotlinx.coroutines.Job?>(null) }
+    fun cancelEdgeScroll() {
+        edgeScrollJob?.cancel()
+        edgeScrollJob = null
+    }
+    // Permanent reorder only makes sense on the stored order: Custom (ascending)
+    // on a local playlist with the lock opened.
+    val reorderEnabled = !isReorderLocked &&
+        selectedFolder == null &&
+        selectedArtist == null &&
+        !playlist.isYouTubeOnly &&
+        currentSort == PlaylistTrackSort.CUSTOM &&
+        sortAscending
+    // Stable content keys aligned to the DISPLAYED order (not playlist.tracks
+    // order) so animateItem() never sees duplicate or shifting keys at the
+    // scroll edge. The old code built keys from playlist.tracks but consumed
+    // them by displayTracks index — reversed/sorted lists then reused the
+    // wrong key per row, which crashes Lazy layout ("key was already used" /
+    // anchor out of bounds) on fast edge flings. Duplicates get occurrence
+    // suffixes; album disambiguates same name+artist across releases.
+    val displayKeys = remember(displayTracks) {
+        val counts = mutableMapOf<String, Int>()
+        displayTracks.map { track ->
+            val base = if (track.url.isNotBlank()) {
+                "url:${track.url}"
+            } else {
+                "t:${track.name.lowercase()}|${track.artist.lowercase()}|${track.album?.lowercase().orEmpty()}"
+            }
+            val n = counts.getOrDefault(base, 0)
+            counts[base] = n + 1
+            "$base#$n"
+        }
+    }
+    LaunchedEffect(playlist.tracks.size, displayTracks.size) {
+        if (draggingIndex < 0 || draggingIndex >= displayTracks.size) {
+            cancelEdgeScroll()
+            draggingIndex = -1
+            dragOffsetY = 0f
+        }
+    }
+    val scrollOffset by remember {
+        derivedStateOf {
+            if (listState.firstVisibleItemIndex == 0) {
+                listState.firstVisibleItemScrollOffset.toFloat()
+            } else 600f
+        }
+    }
+    // The bar shows the title once the header's title has gone under it, as on album pages.
+    var titleBottomPx by remember { mutableIntStateOf(Int.MAX_VALUE) }
+    val toolbarPx = with(LocalDensity.current) { (WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + Sizes.touch).roundToPx() }
+    val showScrolledHeader by remember {
+        derivedStateOf {
+            listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > titleBottomPx - toolbarPx
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background),
+    ) {
+        // Tuned's soft accent wash behind the header, as on album pages.
+        DetailAccentWash(listState)
+
+        LazyColumn(
+            state = listState,
+            contentPadding = PaddingValues(
+                bottom = FloatingNavDefaults.contentBottomPadding(),
+            ),
+            modifier = Modifier
+                .fillMaxSize()
+                .adaptiveContentWidth(maxWidth = 860.dp)
+                .align(Alignment.TopCenter),
+        ) {
+            // Hero Header Section
+            item(key = "hero_section") {
+              Column {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = detailHeaderTop()),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    // Album-page header: cover, title, song count and date, then the controls.
+                    Box(
+                        Modifier
+                            .size(detailCoverSide(LocalConfiguration.current.screenWidthDp.dp))
+                            .shadow(Space.md, AppShape.md, clip = false),
+                    ) {
+                        PlaylistCover(playlist = playlist, modifier = Modifier.fillMaxSize(), cornerRadius = Radius.md)
+                    }
+                    Spacer(Modifier.height(Space.xl))
+                    Text(
+                        text = playlist.title,
+                        style = AppType.titleL,
+                        color = MaterialTheme.tunedColors.text1,
+                        textAlign = TextAlign.Center,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .padding(horizontal = Keyline.detail + Space.xs)
+                            .onGloballyPositioned { titleBottomPx = (it.positionInParent().y + it.size.height).toInt() },
+                    )
+                    Spacer(Modifier.height(Space.xs))
+                    Text(
+                        text = if (playlist.isYouTubeOnly) {
+                            playlist.remoteTrackCount?.let { androidx.compose.ui.res.pluralStringResource(com.tuned.app.R.plurals.pl_song_count, it, it) } ?: stringResource(com.tuned.app.R.string.pd_yt_only)
+                        } else {
+                            androidx.compose.ui.res.pluralStringResource(com.tuned.app.R.plurals.pl_song_count, playlist.tracks.size, playlist.tracks.size)
+                        },
+                        style = AppType.caption.copy(fontFeatureSettings = null),
+                        color = MaterialTheme.tunedColors.text2,
+                        textAlign = TextAlign.Center,
+                    )
+                    Spacer(Modifier.height(Space.lg + Space.xs))
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(Space.md + Space.xxs),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        DetailSideButton(
+                            icon = Icons.Rounded.Shuffle,
+                            contentDescription = stringResource(com.tuned.app.R.string.pd_shuffle_cd),
+                            onClick = {
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                if (isThisPlaylistPlaying) {
+                                    musicPlayer.toggleShuffle()
+                                } else if (displayTracks.isNotEmpty()) {
+                                    val playableTracks = displayTracks.map(GeneratedTrack::toPlayableTrack)
+                                    musicPlayer.playQueue(
+                                        playableTracks,
+                                        startIndex = playableTracks.indices.random(),
+                                        sourceLabel = playlist.title,
+                                        startShuffled = true,
+                                    )
+                                }
+                            },
+                            ink = MaterialTheme.tunedColors.text1,
+                            tint = if (isThisPlaylistPlaying && playbackState.shuffleEnabled) MaterialTheme.tunedColors.accent else MaterialTheme.tunedColors.text1,
+                        )
+                        DetailPlayPill(
+                            playing = isThisPlaylistPlaying,
+                            enabled = playlist.tracks.isNotEmpty(),
+                            onClick = {
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                if (isThisPlaylistPlaying) {
+                                    musicPlayer.togglePlayPause()
+                                } else if (playlist.tracks.isNotEmpty()) {
+                                    musicPlayer.playQueue(
+                                        displayTracks.map(GeneratedTrack::toPlayableTrack),
+                                        startIndex = 0,
+                                        sourceLabel = playlist.title,
+                                    )
+                                }
+                            },
+                        )
+                        // Scrolls to the song that is playing, when it is from this playlist.
+                        DetailSideButton(
+                            icon = Icons.Rounded.MyLocation,
+                            contentDescription = stringResource(com.tuned.app.R.string.pd_locate_cd),
+                            onClick = {
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                val playingTrack = playbackState.current
+                                if (playingTrack != null && isThisPlaylistPlaying) {
+                                    val index = displayTracks.indexOfFirst { it.name.equals(playingTrack.title, ignoreCase = true) && it.artist.equals(playingTrack.artist, ignoreCase = true) }
+                                    if (index >= 0) {
+                                        dragScope.launch { listState.animateScrollToItem(index + 1) } // +1 for the header
+                                    }
+                                }
+                            },
+                            ink = MaterialTheme.tunedColors.text1,
+                        )
+                    }
+                    Spacer(Modifier.height(Space.lg))
+                }
+                // Sorting, the reorder lock and search, on the 20dp margin.
+                Column(Modifier.fillMaxWidth().padding(horizontal = Keyline.detail)) {
+                    if (playlist.mode == LOCAL_SONGS_MODE) {
+                        Spacer(Modifier.height(14.dp))
+                        LocalSongsPanel(trackCount = playlist.tracks.size)
+                        Spacer(Modifier.height(12.dp))
+                        LocalFolderChips(selected = selectedFolder, onSelect = { selectedFolder = it })
+                        Spacer(Modifier.height(10.dp))
+                        LocalTabRow(selected = localTab, onSelect = { localTab = it })
+                        if (selectedFolder != null) {
+                            // Every folder filter gets its clearable banner —
+                            // picked (SAF) folders used to be excluded, so a
+                            // SAF filter could only be cleared from the chips.
+                            LocalFilterBanner(
+                                label = localFolderLabel(selectedFolder!!, localSongsViewModel, otherFolderLabel),
+                                onClear = { selectedFolder = null },
+                            )
+                        }
+                        if (selectedArtist != null) {
+                            LocalFilterBanner(
+                                label = localArtistList.firstOrNull { it.key == selectedArtist }?.name ?: selectedArtist!!,
+                                onClear = { selectedArtist = null },
+                            )
+                        }
+                    }
+                }
+                if (playlist.mode == LOCAL_SONGS_MODE && localTab == LOCAL_TAB_SONGS) {
+                    LocalAlbumsShelf(localAlbumList, onOpen = { onOpenLocalAlbum(it.key) })
+                }
+                if (playlist.mode != LOCAL_SONGS_MODE || localTab == LOCAL_TAB_SONGS) {
+                Column(Modifier.fillMaxWidth().padding(horizontal = Keyline.detail)) {
+                    Spacer(Modifier.height(18.dp))
+
+                    // Sort Filter Pill & Lock Icon Row (Custom order, Date added, Name, Artist, Play time)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Box {
+                            Surface(
+                                onClick = {
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    sortMenuOpen = true
+                                },
+                                shape = AppShape.full,
+                                color = MaterialTheme.tunedColors.text1.copy(alpha = 0.1f),
+                                contentColor = MaterialTheme.tunedColors.text1,
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 9.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                ) {
+                                    Text(
+                                        text = stringResource(currentSort.labelRes),
+                                        style = MaterialTheme.typography.labelLarge,
+                                        fontWeight = FontWeight.SemiBold,
+                                    )
+                                    Icon(
+                                        imageVector = if (sortAscending) Icons.Filled.ArrowUpward else Icons.Filled.ArrowDownward,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp),
+                                    )
+                                }
+                            }
+
+                            DropdownMenu(
+                                expanded = sortMenuOpen,
+                                onDismissRequest = { sortMenuOpen = false },
+                                shape = com.tuned.app.ui.theme.MenuShape,
+                                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                tonalElevation = 6.dp,
+                                shadowElevation = 10.dp,
+                                modifier = Modifier.widthIn(min = 210.dp),
+                            ) {
+                                PlaylistTrackSort.entries.forEach { option ->
+                                    val isSelected = currentSort == option
+                                    DropdownMenuItem(
+                                        text = {
+                                            Row(
+                                                modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
+                                                horizontalArrangement = Arrangement.SpaceBetween,
+                                                verticalAlignment = Alignment.CenterVertically,
+                                            ) {
+                                                Text(
+                                                    text = stringResource(option.labelRes),
+                                                    style = MaterialTheme.typography.bodyMedium,
+                                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                                    color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                                                )
+                                                Spacer(Modifier.width(16.dp))
+                                                Icon(
+                                                    imageVector = when {
+                                                        isSelected && !sortAscending -> Icons.Filled.ArrowDownward
+                                                        isSelected && sortAscending -> Icons.Filled.ArrowUpward
+                                                        else -> Icons.Filled.SwapVert
+                                                    },
+                                                    contentDescription = null,
+                                                    tint = if (isSelected) {
+                                                        MaterialTheme.colorScheme.primary
+                                                    } else {
+                                                        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                                                    },
+                                                    modifier = Modifier.size(18.dp),
+                                                )
+                                            }
+                                        },
+                                        onClick = {
+                                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                            if (currentSort == option) {
+                                                sortAscending = !sortAscending
+                                            } else {
+                                                currentSort = option
+                                                sortAscending = option != PlaylistTrackSort.PLAY_TIME
+                                            }
+                                            PlaylistSortMemory.save(context, playlistId, currentSort, sortAscending)
+                                            sortMenuOpen = false
+                                        },
+                                    )
+                                }
+                            }
+                        }
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            Text(
+                                if (playlist.isYouTubeOnly) {
+                                    playlist.remoteTrackCount?.let { stringResource(com.tuned.app.R.string.pd_track_count, it) } ?: stringResource(com.tuned.app.R.string.pd_tracks_label)
+                                } else {
+                                    stringResource(com.tuned.app.R.string.pd_track_count, playlist.tracks.size)
+                                },
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                fontWeight = FontWeight.Medium,
+                            )
+                            IconButton(
+                                onClick = {
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    isReorderLocked = !isReorderLocked
+                                },
+                                modifier = Modifier.size(36.dp),
+                            ) {
+                                Icon(
+                                    imageVector = if (isReorderLocked) Icons.Filled.Lock else Icons.Filled.LockOpen,
+                                    contentDescription = if (isReorderLocked) stringResource(com.tuned.app.R.string.pd_reorder_locked_cd) else stringResource(com.tuned.app.R.string.pd_reorder_unlocked_cd),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.size(20.dp),
+                                )
+                            }
+                        }
+                    }
+
+                    AnimatedVisibility(
+                        visible = isSearchActive,
+                        enter = expandVertically() + fadeIn(),
+                        exit = shrinkVertically() + fadeOut(),
+                    ) {
+                        androidx.compose.material3.OutlinedTextField(
+                            value = searchQuery,
+                            onValueChange = { searchQuery = it },
+                            placeholder = { Text(stringResource(com.tuned.app.R.string.pd_search_hint)) },
+                            leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
+                            trailingIcon = {
+                                if (searchQuery.isNotEmpty()) {
+                                    IconButton(onClick = { searchQuery = "" }) {
+                                        Icon(Icons.Filled.Close, contentDescription = stringResource(com.tuned.app.R.string.pd_clear_search_cd))
+                                    }
+                                }
+                            },
+                            shape = RoundedCornerShape(12.dp),
+                            singleLine = true,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp),
+                            colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
+                                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                            ),
+                        )
+                    }
+
+                    Spacer(Modifier.height(6.dp))
+                }
+                }
+              }
+            }
+
+            // Track items — or, in Local songs, the selected category.
+            if (playlist.mode == LOCAL_SONGS_MODE && localTab != LOCAL_TAB_SONGS) {
+                when (localTab) {
+                    LOCAL_TAB_ALBUMS -> {
+                        if (localAlbumList.isEmpty()) {
+                            item(key = "local_albums_empty", contentType = "empty") { LocalCategoryEmpty() }
+                        } else {
+                            items(
+                                items = localAlbumList.chunked(2),
+                                key = { row -> "albums_" + row.joinToString("_") { it.key } },
+                                contentType = { "local_album_row" },
+                            ) { row ->
+                                LocalTileRow {
+                                    row.forEach { album ->
+                                        MediaTile(
+                                            title = album.title,
+                                            subtitle = album.artist,
+                                            artworkUrl = album.artworkUrl,
+                                            width = null,
+                                            onClick = { onOpenLocalAlbum(album.key) },
+                                            modifier = Modifier.weight(1f),
+                                        )
+                                    }
+                                    if (row.size == 1) Spacer(Modifier.weight(1f))
+                                }
+                            }
+                        }
+                    }
+                    LOCAL_TAB_ARTISTS -> {
+                        if (localArtistList.isEmpty()) {
+                            item(key = "local_artists_empty", contentType = "empty") { LocalCategoryEmpty() }
+                        } else {
+                            items(
+                                items = localArtistList.chunked(2),
+                                key = { row -> "artists_" + row.joinToString("_") { it.key } },
+                                contentType = { "local_artist_row" },
+                            ) { row ->
+                                LocalTileRow {
+                                    row.forEach { artist ->
+                                        MediaTile(
+                                            title = artist.name,
+                                            subtitle = pluralStringResource(com.tuned.app.R.plurals.alb_song_count, artist.trackCount, artist.trackCount),
+                                            artworkUrl = artist.artworkUrl,
+                                            shape = com.tuned.app.ui.common.MediaTileShape.Circle,
+                                            width = null,
+                                            onClick = {
+                                                selectedArtist = artist.key
+                                                localTab = LOCAL_TAB_SONGS
+                                            },
+                                            modifier = Modifier.weight(1f),
+                                        )
+                                    }
+                                    if (row.size == 1) Spacer(Modifier.weight(1f))
+                                }
+                            }
+                        }
+                    }
+                    LOCAL_TAB_FOLDERS -> {
+                        if (localFolderGroups.isEmpty()) {
+                            item(key = "local_folders_empty", contentType = "empty") { LocalCategoryEmpty() }
+                        } else {
+                            items(
+                                items = localFolderGroups.chunked(2),
+                                key = { row -> "folders_" + row.joinToString("_") { it.key } },
+                                contentType = { "local_folder_row" },
+                            ) { row ->
+                                LocalTileRow {
+                                    row.forEach { group ->
+                                        MediaTile(
+                                            title = localFolderLabel(group.key, localSongsViewModel, otherFolderLabel),
+                                            subtitle = pluralStringResource(com.tuned.app.R.plurals.alb_song_count, group.trackCount, group.trackCount),
+                                            artworkUrl = group.tracks.firstNotNullOfOrNull { it.artworkUrl },
+                                            width = null,
+                                            onClick = {
+                                                selectedFolder = group.key.ifEmpty { LOCAL_FOLDER_UNKNOWN_KEY }
+                                                localTab = LOCAL_TAB_SONGS
+                                            },
+                                            modifier = Modifier.weight(1f),
+                                        )
+                                    }
+                                    if (row.size == 1) Spacer(Modifier.weight(1f))
+                                }
+                            }
+                        }
+                    }
+                }
+            } else if (displayTracks.isEmpty()) {
+                item(key = "empty_tracks", contentType = "empty") {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 48.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        if (state.isDetailLoading) {
+                            ExpressiveLoadingIndicator(message = stringResource(com.tuned.app.R.string.pd_loading))
+                        } else {
+                            Text(
+                                stringResource(com.tuned.app.R.string.pd_empty),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                }
+            } else {
+                if (!isReorderLocked && !reorderEnabled && !playlist.isYouTubeOnly && displayTracks.size > 1) {
+                    item(key = "reorder_sort_hint", contentType = "hint") {
+                        Text(
+                            stringResource(com.tuned.app.R.string.pd_reorder_hint),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
+                        )
+                    }
+                }
+                itemsIndexed(
+                    items = displayTracks,
+                    key = { index, track ->
+                        displayKeys.getOrNull(index) ?: "pos_${track.url.ifBlank { "${track.name}_${track.artist}" }}_$index"
+                    },
+                    contentType = { _, _ -> "playlist_track" },
+                ) { index, track ->
+                    val isPlayingThisSong = playbackState.isPlaying &&
+                        playbackState.current?.title.equals(track.name, ignoreCase = true) &&
+                        playbackState.current?.artist.equals(track.artist, ignoreCase = true)
+                    val isDragging = reorderEnabled && index == draggingIndex
+                    val stableKey = displayKeys.getOrNull(index) ?: "pos_${track.url.ifBlank { "${track.name}_${track.artist}" }}_$index"
+
+                    Box(
+                        modifier = Modifier
+                            .animateItem()
+                            .zIndex(if (isDragging) 1f else 0f)
+                            .graphicsLayer {
+                                translationY = if (isDragging) dragOffsetY else 0f
+                                shadowElevation = if (isDragging) 18f else 0f
+                                val s = if (isDragging) 1.025f else 1f
+                                scaleX = s
+                                scaleY = s
+                                alpha = if (isDragging) 0.96f else 1f
+                            },
+                    ) {
+                        NativeTrackRow(
+                            index = index + 1,
+                            track = track,
+                            isPlaying = isPlayingThisSong,
+                            onClick = {
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                if (displayTracks.isEmpty()) return@NativeTrackRow
+                                // index is from composition time; the list can
+                                // shrink (remove/move) before the tap lands —
+                                // an OOB startIndex crashed playback at the edge.
+                                val safeIndex = index.coerceIn(displayTracks.indices)
+                                runCatching {
+                                    musicPlayer.playQueue(
+                                        displayTracks.map(GeneratedTrack::toPlayableTrack),
+                                        startIndex = safeIndex,
+                                        sourceLabel = playlist.title,
+                                        startShuffled = playbackState.shuffleEnabled,
+                                    )
+                                }
+                            },
+                            onMenu = {
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                menuTarget = track
+                            },
+                            dragHandle = if (!reorderEnabled) {
+                                null
+                            } else {
+                                {
+                                    Icon(
+                                        Icons.Filled.DragHandle,
+                                        stringResource(com.tuned.app.R.string.queue_drag_hint),
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (isDragging) 1f else 0.6f),
+                                        modifier = Modifier
+                                            .padding(start = 4.dp)
+                                            .size(40.dp)
+                                            .clip(RoundedCornerShape(14.dp))
+                                            .background(
+                                                if (isDragging) MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
+                                                else MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.6f),
+                                            )
+                                            .padding(8.dp)
+                                            .pointerInput(stableKey) {
+                                                detectDragGestures(
+                                                    onDragStart = {
+                                                        draggingIndex = index
+                                                        dragOffsetY = 0f
+                                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                                    },
+                                                    onDragEnd = {
+                                                        cancelEdgeScroll()
+                                                        draggingIndex = -1
+                                                        dragOffsetY = 0f
+                                                    },
+                                                    onDragCancel = {
+                                                        cancelEdgeScroll()
+                                                        draggingIndex = -1
+                                                        dragOffsetY = 0f
+                                                    },
+                                                    onDrag = { change, dragAmount ->
+                                                        change.consume()
+                                                        val source = draggingIndex
+                                                        if (source < 0 || source !in displayTracks.indices) {
+                                                            cancelEdgeScroll()
+                                                            return@detectDragGestures
+                                                        }
+                                                        dragOffsetY += dragAmount.y
+                                                        // layoutInfo can throw while the list is
+                                                        // recomposing under moveTrack(); never let a
+                                                        // scroll-edge read crash the app.
+                                                        val layoutInfo = runCatching { listState.layoutInfo }.getOrNull()
+                                                            ?: return@detectDragGestures
+                                                        val visible = runCatching { layoutInfo.visibleItemsInfo }.getOrNull()
+                                                            ?: return@detectDragGestures
+                                                        if (visible.isEmpty()) return@detectDragGestures
+                                                        val draggedInfo = visible
+                                                            .firstOrNull { it.index == source + 1 }
+                                                            ?: return@detectDragGestures
+                                                        val draggedCenter = draggedInfo.offset + draggedInfo.size / 2 + dragOffsetY.toInt()
+                                                        // +1 offsets the hero header item at position 0.
+                                                        val target = visible.firstOrNull { info ->
+                                                            val trackIndex = info.index - 1
+                                                            info.index != source + 1 &&
+                                                                trackIndex in displayTracks.indices &&
+                                                                draggedCenter in info.offset..(info.offset + info.size)
+                                                        }?.index?.minus(1)
+                                                        if (target != null && target != source && target in displayTracks.indices) {
+                                                            runCatching { viewModel.moveTrack(playlistId, source, target) }
+                                                            val targetInfo = runCatching {
+                                                                listState.layoutInfo.visibleItemsInfo
+                                                                    .firstOrNull { it.index == target + 1 }
+                                                            }.getOrNull()
+                                                            if (targetInfo != null) {
+                                                                dragOffsetY += (draggedInfo.offset - targetInfo.offset).toFloat()
+                                                            }
+                                                            draggingIndex = target
+                                                            runCatching { haptic.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick) }
+                                                        }
+                                                        val viewportStart = runCatching { layoutInfo.viewportStartOffset }.getOrDefault(0)
+                                                        val viewportEnd = runCatching { layoutInfo.viewportEndOffset }.getOrDefault(0)
+                                                        if (viewportEnd <= viewportStart) {
+                                                            cancelEdgeScroll()
+                                                            return@detectDragGestures
+                                                        }
+                                                        val edgeZone = 180
+                                                        val direction = when {
+                                                            draggedCenter < viewportStart + edgeZone -> -1f
+                                                            draggedCenter > viewportEnd - edgeZone -> 1f
+                                                            else -> 0f
+                                                        }
+                                                        if (direction == 0f) {
+                                                            cancelEdgeScroll()
+                                                        } else if (edgeScrollJob?.isActive != true) {
+                                                            edgeScrollJob = dragScope.launch {
+                                                                runCatching { listState.scrollBy(direction * 28f) }
+                                                            }
+                                                        }
+                                                    },
+                                                )
+                                            },
+                                    )
+                                }
+                            },
+                        )
+                    }
+                }
+            }
+        }
+
+        // 2. Floating Top Bar with Frosted Glass styling & Smooth Scrolled Header
+        Surface(
+            color = Color.Transparent,
+            modifier = Modifier
+                .fillMaxWidth()
+                .barScrim(visible = showScrolledHeader)
+                .align(Alignment.TopCenter),
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .adaptiveContentWidth(maxWidth = 860.dp)
+                    .windowInsetsPadding(WindowInsets.statusBars)
+                    .padding(horizontal = Space.lg, vertical = Space.xs),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                GlassCircleButton(TunedIcons.ChevronBack, stringResource(com.tuned.app.R.string.pd_back_cd), onBack)
+
+                Row(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    AnimatedVisibility(visible = showScrolledHeader, enter = fadeIn(), exit = fadeOut()) {
+                        Text(
+                            text = playlist.title,
+                            style = AppType.title,
+                            color = MaterialTheme.tunedColors.text1,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                }
+
+                // Search and more, in the frosted capsule the album and artist pages use.
+                Row(
+                    modifier = Modifier.glassSurface(AppShape.full, fill = glassFill(), hairline = true),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                        IconButton(
+                            onClick = {
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                isSearchActive = !isSearchActive
+                                if (!isSearchActive) searchQuery = ""
+                            },
+                            modifier = Modifier.size(42.dp),
+                        ) {
+                            Icon(
+                                Icons.Rounded.Search,
+                                contentDescription = stringResource(com.tuned.app.R.string.pd_search_cd),
+                                tint = if (isSearchActive) MaterialTheme.tunedColors.accent else MaterialTheme.tunedColors.text1,
+                                modifier = Modifier.size(Sizes.iconRow),
+                            )
+                        }
+                        Box {
+                            IconButton(
+                                onClick = {
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    overflowMenuOpen = true
+                                },
+                                modifier = Modifier.size(42.dp),
+                            ) {
+                                Icon(
+                                    TunedIcons.More,
+                                    contentDescription = stringResource(com.tuned.app.R.string.pd_options_cd),
+                                    tint = MaterialTheme.tunedColors.text1,
+                                    modifier = Modifier.size(Sizes.iconRow),
+                                )
+                            }
+
+                        DropdownMenu(
+                            expanded = overflowMenuOpen,
+                            onDismissRequest = { overflowMenuOpen = false },
+                            shape = com.tuned.app.ui.theme.MenuShape,
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            tonalElevation = 6.dp,
+                            shadowElevation = 12.dp,
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text(if (playlist.isPinned) stringResource(com.tuned.app.R.string.pd_unpin) else stringResource(com.tuned.app.R.string.pd_pin_top)) },
+                                leadingIcon = { Icon(Icons.Filled.PushPin, contentDescription = null) },
+                                onClick = {
+                                    viewModel.togglePinned(playlistId)
+                                    overflowMenuOpen = false
+                                },
+                            )
+                            val isLocalSongs = playlist.mode == LOCAL_SONGS_MODE
+                            if (!isLocalSongs) DropdownMenuItem(
+                                text = { Text(stringResource(com.tuned.app.R.string.pl_download_all)) },
+                                leadingIcon = { Icon(Icons.Filled.Download, contentDescription = null) },
+                                onClick = {
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    viewModel.downloadPlaylist(playlistId)
+                                    overflowMenuOpen = false
+                                },
+                            )
+                            if (!isLocalSongs) DropdownMenuItem(
+                                text = { Text(stringResource(com.tuned.app.R.string.pd_cancel_downloads)) },
+                                leadingIcon = { Icon(Icons.Filled.Close, contentDescription = null) },
+                                onClick = {
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    viewModel.cancelPlaylistDownloads(playlistId)
+                                    overflowMenuOpen = false
+                                },
+                            )
+                            if (playlist.isYouTubeOnly) {
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(com.tuned.app.R.string.pl_make_local)) },
+                                    leadingIcon = { Icon(Icons.Filled.BookmarkAdd, contentDescription = null) },
+                                    onClick = {
+                                        viewModel.makeLocal(playlistId)
+                                        overflowMenuOpen = false
+                                    },
+                                )
+                            } else {
+                                if (playlist.mode != LIKED_SONGS_MODE && !isLocalSongs) {
+                                    DropdownMenuItem(
+                                        text = {
+                                            Text(
+                                                if (state.regeneratingId == playlistId) stringResource(com.tuned.app.R.string.pl_regenerating)
+                                                else stringResource(com.tuned.app.R.string.pd_regenerate_playlist),
+                                            )
+                                        },
+                                        leadingIcon = {
+                                            Icon(
+                                                Icons.Filled.Refresh,
+                                                contentDescription = null,
+                                                tint = MaterialTheme.colorScheme.primary,
+                                            )
+                                        },
+                                        enabled = state.regeneratingId == null,
+                                        onClick = {
+                                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                            viewModel.regenerate(playlistId) { newId ->
+                                                onOpenPlaylist?.invoke(newId)
+                                            }
+                                            overflowMenuOpen = false
+                                        },
+                                    )
+                                }
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(com.tuned.app.R.string.pd_change_cover)) },
+                                    leadingIcon = { Icon(Icons.Filled.PhotoLibrary, contentDescription = null) },
+                                    onClick = {
+                                        coverEditorOpen = true
+                                        overflowMenuOpen = false
+                                    },
+                                )
+                                if (playlist.mode != LIKED_SONGS_MODE) {
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(com.tuned.app.R.string.pl_rename_title)) },
+                                        leadingIcon = { Icon(Icons.Filled.Edit, contentDescription = null) },
+                                        onClick = {
+                                            viewModel.requestRename(playlistId)
+                                            overflowMenuOpen = false
+                                        },
+                                    )
+                                }
+                            }
+                            DropdownMenuItem(
+                                text = { Text(stringResource(com.tuned.app.R.string.pd_export_share)) },
+                                leadingIcon = { Icon(Icons.Filled.Share, contentDescription = null) },
+                                onClick = {
+                                    viewModel.openExportSheet(playlistId)
+                                    overflowMenuOpen = false
+                                },
+                            )
+                            if (!playlist.isYouTubeOnly && !isLocalSongs) {
+                                val isSyncedToYt = syncedPlaylistIds == null || playlistId in (syncedPlaylistIds ?: emptySet())
+                                DropdownMenuItem(
+                                    text = { Text(if (isSyncedToYt) stringResource(com.tuned.app.R.string.pd_syncing_yt) else stringResource(com.tuned.app.R.string.pd_sync_yt)) },
+                                    leadingIcon = {
+                                        Icon(
+                                            Icons.Filled.CloudSync,
+                                            contentDescription = null,
+                                            tint = if (isSyncedToYt) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
+                                    },
+                                    onClick = {
+                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        viewModel.toggleYtSync(playlistId)
+                                        overflowMenuOpen = false
+                                    },
+                                )
+                            }
+                                if (!isLocalSongs) DropdownMenuItem(
+                                    text = { Text(stringResource(com.tuned.app.R.string.pd_delete_item), color = MaterialTheme.colorScheme.error) },
+                                    leadingIcon = { Icon(Icons.Filled.Delete, contentDescription = null, tint = MaterialTheme.colorScheme.error) },
+                                    onClick = {
+                                        viewModel.requestDelete(playlistId)
+                                        overflowMenuOpen = false
+                                    },
+                                )
+                        }
+                    }
+                }
+            }
+        }
+
+        AnimatedVisibility(
+            visible = state.regeneratingId == playlistId,
+            enter = fadeIn() + scaleIn(),
+            exit = fadeOut() + scaleOut(),
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = FloatingNavDefaults.contentBottomPadding() + 12.dp),
+        ) {
+            Surface(
+                shape = ExpressivePillShape,
+                color = MaterialTheme.colorScheme.inverseSurface,
+                shadowElevation = 8.dp,
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 18.dp, vertical = 12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    com.tuned.app.ui.common.ExpressiveInlineLoadingIndicator(
+                        size = 20.dp,
+                        color = MaterialTheme.colorScheme.inverseOnSurface,
+                        strokeWidth = 2.dp,
+                    )
+                    Text(
+                        stringResource(com.tuned.app.R.string.pd_building),
+                        color = MaterialTheme.colorScheme.inverseOnSurface,
+                        style = MaterialTheme.typography.labelLarge,
+                    )
+                }
+            }
+        }
+
+        // Toasts
+        state.toastMessage?.let { msg ->
+            LaunchedEffect(msg) {
+                kotlinx.coroutines.delay(3000)
+                viewModel.dismissToast()
+            }
+            Surface(
+                shape = ExpressivePillShape,
+                color = MaterialTheme.colorScheme.inverseSurface,
+                shadowElevation = 8.dp,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = FloatingNavDefaults.contentBottomPadding() + 12.dp),
+            ) {
+                Text(
+                    msg,
+                    color = MaterialTheme.colorScheme.inverseOnSurface,
+                    style = MaterialTheme.typography.labelLarge,
+                    modifier = Modifier.padding(horizontal = 18.dp, vertical = 10.dp),
+                )
+            }
+        }
+    }
+
+    // Cover Editor Dialog
+    if (coverEditorOpen) {
+        AlertDialog(
+            onDismissRequest = { coverEditorOpen = false },
+            title = { Text(stringResource(com.tuned.app.R.string.pl_cover_title)) },
+            text = {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    PlaylistCover(playlist = playlist, modifier = Modifier.size(140.dp), cornerRadius = 26.dp)
+                    Spacer(Modifier.height(16.dp))
+                    Text(
+                        if (playlist.customCoverUri.isNullOrBlank()) {
+                            stringResource(com.tuned.app.R.string.pl_cover_auto_desc)
+                        } else {
+                            stringResource(com.tuned.app.R.string.pl_cover_custom_desc)
+                        },
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center,
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        coverEditorOpen = false
+                        coverPicker.launch(arrayOf("image/*"))
+                    },
+                ) {
+                    Text(if (playlist.customCoverUri.isNullOrBlank()) stringResource(com.tuned.app.R.string.pl_choose_image) else stringResource(com.tuned.app.R.string.pl_change_image))
+                }
+            },
+            dismissButton = {
+                Row {
+                    if (!playlist.customCoverUri.isNullOrBlank()) {
+                        TextButton(
+                            onClick = {
+                                viewModel.setCustomCover(playlistId, null)
+                                coverEditorOpen = false
+                            },
+                        ) { Text(stringResource(com.tuned.app.R.string.pl_use_automatic)) }
+                    }
+                    TextButton(onClick = { coverEditorOpen = false }) { Text(stringResource(com.tuned.app.R.string.common_done)) }
+                }
+            },
+        )
+    }
+
+    // Delete confirmation dialog
+    if (state.deleteConfirmForPlaylistId != null) {
+        AlertDialog(
+            onDismissRequest = viewModel::dismissDeleteConfirm,
+            title = { Text(stringResource(com.tuned.app.R.string.pd_delete_title)) },
+            text = { Text(stringResource(com.tuned.app.R.string.pd_delete_text, playlist.title)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.confirmDelete()
+                    onBack()
+                }) { Text(stringResource(com.tuned.app.R.string.common_delete), color = MaterialTheme.colorScheme.error) }
+            },
+            dismissButton = { TextButton(onClick = viewModel::dismissDeleteConfirm) { Text(stringResource(com.tuned.app.R.string.common_cancel)) } },
+        )
+    }
+
+    // Rename dialog
+    state.renamePlaylistId?.let { id ->
+        var title by remember(id) { mutableStateOf(playlist.title) }
+        AlertDialog(
+            onDismissRequest = viewModel::dismissRename,
+            title = { Text(stringResource(com.tuned.app.R.string.pl_rename_title)) },
+            text = {
+                OutlinedTextField(
+                    value = title,
+                    onValueChange = { title = it },
+                    label = { Text(stringResource(com.tuned.app.R.string.pl_name_label)) },
+                    singleLine = true,
+                    shape = RoundedCornerShape(16.dp),
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = { viewModel.renamePlaylist(title) }, enabled = title.isNotBlank()) { Text(stringResource(com.tuned.app.R.string.common_save)) }
+            },
+            dismissButton = { TextButton(onClick = viewModel::dismissRename) { Text(stringResource(com.tuned.app.R.string.common_cancel)) } },
+        )
+    }
+
+    // Export bottom sheet
+    state.exportSheetForPlaylistId?.let { id ->
+        ExportBottomSheet(
+            onDismiss = viewModel::dismissExportSheet,
+            onSaveCsv = { viewModel.exportSave(id, ExportFormat.CSV) },
+            onSaveM3u = { viewModel.exportSave(id, ExportFormat.M3U) },
+            onShareCsv = { viewModel.exportShare(id, ExportFormat.CSV) },
+            onShareM3u = { viewModel.exportShare(id, ExportFormat.M3U) },
+        )
+    }
+
+    // Track Context Menu
+    menuTarget?.let { track ->
+        TrackContextMenuSheet(
+            target = TrackMenuTarget.Track(track.name, track.artist, track.url),
+            capabilities = TrackMenuCapabilities(showCopyActions = true, showDeleteScrobble = true),
+            // Keep the file path so menu actions play / add the local copy.
+            playableTrack = track.takeIf { it.isLocalFile() }?.toPlayableTrack(),
+            playbackSourceLabel = playlist.title,
+            onDismiss = { menuTarget = null },
+            onRemoveFromPlaylist = {
+                val realIndex = playlist.tracks.indexOfFirst {
+                    (it.url.isNotBlank() && it.url == track.url) ||
+                        (it.name.equals(track.name, ignoreCase = true) && it.artist.equals(track.artist, ignoreCase = true))
+                }
+                if (realIndex >= 0) {
+                    viewModel.removeTrack(playlistId, realIndex)
+                }
+            },
+            onDeleteScrobble = { name, artist -> viewModel.deleteScrobble(name, artist) },
+            onRefreshArtwork = { viewModel.refreshArtwork(track.name, track.artist) },
+        )
+    }
+}
+
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
+/** A playlist row: the album page's row (cover, title, artist, ⋯) with the drag handle while reordering. */
+@Composable
+private fun NativeTrackRow(
+    index: Int,
+    track: GeneratedTrack,
+    isPlaying: Boolean,
+    onClick: () -> Unit,
+    onMenu: () -> Unit,
+    dragHandle: (@Composable () -> Unit)? = null,
+) {
+    DetailTrackRow(
+        title = track.name,
+        subtitle = track.artist,
+        artworkName = track.name,
+        artworkArtist = track.artist,
+        artworkUrl = track.artworkUrl,
+        playing = isPlaying,
+        onClick = onClick,
+        // While reordering, a long press would fight the drag handle.
+        onLongClick = if (dragHandle != null) null else onMenu,
+        onMore = onMenu,
+        trailing = dragHandle,
+    )
+}
+
+/** Display label for a unified local folder key (see LocalCategories.kt). */
+private fun localFolderLabel(key: String, viewModel: LocalSongsViewModel?, otherLabel: String): String = when {
+    key.isEmpty() || key == LOCAL_FOLDER_UNKNOWN_KEY -> otherLabel
+    key.startsWith(DEVICE_FOLDER_PREFIX) ->
+        key.removePrefix(DEVICE_FOLDER_PREFIX).trimEnd('/').ifBlank { key }
+    else -> viewModel?.label(android.net.Uri.parse(key)) ?: key
+}
+
+/** A two-column tile row for the Local songs category tabs. */
+@Composable
+private fun LocalTileRow(content: @Composable androidx.compose.foundation.layout.RowScope.() -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = Keyline.detail, vertical = 6.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        content = content,
+    )
+}
+
+/** Empty state for a Local songs category tab. */
+@Composable
+private fun LocalCategoryEmpty() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 48.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            stringResource(com.tuned.app.R.string.pd_empty),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+/** The active artist / device-folder filter above the Local songs list, with its clear button. */
+@Composable
+private fun LocalFilterBanner(label: String, onClear: () -> Unit) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+    ) {
+        Text(
+            label,
+            style = AppType.bodyS,
+            color = MaterialTheme.tunedColors.text2,
+            maxLines = 1,
+            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f),
+        )
+        IconButton(onClick = onClear, modifier = Modifier.size(32.dp)) {
+            Icon(
+                Icons.Filled.Close,
+                contentDescription = stringResource(com.tuned.app.R.string.common_close),
+                tint = MaterialTheme.tunedColors.text3,
+                modifier = Modifier.size(18.dp),
+            )
+        }
+    }
+}

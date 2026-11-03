@@ -1,0 +1,102 @@
+package com.tuned.app.ui.navigation
+
+/**
+ * Route constants for the whole app. Declaring the full set up front — even
+ * though only [Login] has a screen behind it yet — means NavGraph.kt's
+ * shape doesn't change on every future module; each module just adds its
+ * composable() block under the route that's already named here.
+ */
+sealed class Screen(val route: String) {
+    data object Splash : Screen("splash")
+    data object Login : Screen("login")
+    data object MainShell : Screen("main_shell")
+
+    // "create" is a real pushed destination (the Generate screen). The shell's
+    // Home/Library tabs are NOT destinations on this graph — they live inside
+    // MainShell — so no route objects exist for them (dead constants invited
+    // navigation to unregistered routes).
+    data object Create : Screen("create")
+
+    // Pushed screens, slide-in from the right (matches PAGE_TRANSITIONS in nav.js)
+    data object Discover : Screen("discover")
+    data object Genres : Screen("genres")
+    data object History : Screen("history")
+    data object Recap : Screen("recap")
+    data object Search : Screen("search")
+    data object Settings : Screen("settings")
+    /** Settings opened on the YouTube account row (from You's account pill). */
+    data object YouTubeAccountSettings : Screen("settings/youtube_account")
+    data object Friends : Screen("friends")
+    data object Downloads : Screen("downloads")
+    data object ProviderModules : Screen("provider_modules")
+    data object HomeSections : Screen("home_sections")
+    data object ExcludedSongs : Screen("excluded_songs")
+    data object YouTubeImport : Screen("youtube_import")
+    data object YouTubeLogin : Screen("youtube_login")
+    data object SpotifyLogin : Screen("spotify_login")
+
+    /** The session cookie pasted in by hand, without the browser sign-in. */
+    data object SpotifyTokenImport : Screen("spotify_token_import")
+    data object Jam : Screen("jam?code={code}") {
+        fun createRoute(code: String? = null) = if (code.isNullOrBlank()) "jam" else "jam?code=${encodeArg(code)}"
+    }
+    data object ExternalPlaylistImport : Screen("external_playlist_import")
+    data object NewReleases : Screen("new_releases")
+    data object Podcasts : Screen("podcasts")
+    data object PodcastShow : Screen("podcast_show/{showId}") {
+        fun createRoute(showId: String) = "podcast_show/${encodeArg(showId)}"
+    }
+    data object FeedPlaylistDetail : Screen("feed_playlist/{playlistId}") {
+        fun createRoute(playlistId: String) = "feed_playlist/${encodeArg(playlistId)}"
+    }
+    data object PlaylistDetail : Screen("playlist_detail/{playlistId}") {
+        fun createRoute(playlistId: Long) = "playlist_detail/$playlistId"
+    }
+    data object ArtistDetail : Screen("artist_detail/{artistName}?browseId={browseId}") {
+        fun createRoute(artistName: String, browseId: String? = null): String {
+            val encName = encodeArg(artistName)
+            val encBrowseId = if (!browseId.isNullOrBlank()) encodeArg(browseId) else ""
+            return "artist_detail/$encName?browseId=$encBrowseId"
+        }
+    }
+    data object AlbumDetail : Screen("album_detail/{albumTitle}?artistName={artistName}&browseId={browseId}") {
+        fun createRoute(albumTitle: String, artistName: String = "", browseId: String? = null): String {
+            val encTitle = encodeArg(albumTitle)
+            val encArtist = encodeArg(artistName)
+            val encBrowseId = if (!browseId.isNullOrBlank()) encodeArg(browseId) else ""
+            return "album_detail/$encTitle?artistName=$encArtist&browseId=$encBrowseId"
+        }
+    }
+    data object LocalAlbum : Screen("local_album/{albumKey}") {
+        fun createRoute(albumKey: String) = "local_album/${encodeArg(albumKey)}"
+    }
+    data object FriendProfile : Screen("friend_profile/{username}?displayName={displayName}") {
+        // Only the username (and a harmless display label) travel in the route.
+        // The avatar URL used to be embedded too — a possibly signed URL then
+        // sits in the navigation history; the profile screen resolves the
+        // avatar from the fetched profile data instead.
+        fun createRoute(username: String, displayName: String? = null): String {
+            val encName = encodeArg(username)
+            val encDisplay = if (!displayName.isNullOrBlank()) encodeArg(displayName) else ""
+            return "friend_profile/$encName?displayName=$encDisplay"
+        }
+    }
+
+    companion object {
+        /**
+         * Encodes one route argument (path segment or query value) so names
+         * with `/`, `?`, `&` or `#` — e.g. "AC/DC", "Simon & Garfunkel",
+         * "What If...?" — can never split the route into extra segments /
+         * params (which crashed navigation or opened the wrong page).
+         * Navigation decodes the value once on read, so this round-trips.
+         */
+        fun encodeArg(raw: String): String =
+            android.net.Uri.encode(raw)
+                ?.replace("/", "%2F")
+                ?.replace("?", "%3F")
+                ?.replace("&", "%26")
+                ?.replace("#", "%23")
+                .orEmpty()
+    }
+}
+
