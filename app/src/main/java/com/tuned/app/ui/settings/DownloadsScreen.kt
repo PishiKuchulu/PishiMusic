@@ -2,6 +2,7 @@
 
 package com.tuned.app.ui.settings
 
+import com.tuned.app.R
 import com.tuned.app.ui.common.PredictiveBackScreen
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState

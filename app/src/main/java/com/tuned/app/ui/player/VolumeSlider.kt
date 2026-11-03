@@ -52,6 +52,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -331,7 +332,7 @@ fun VolumeSlider(
                     // announce the level as a percentage on the slider itself.
                     modifier = Modifier
                         .fillMaxSize()
-                        .androidx.compose.ui.semantics.semantics {
+                        .semantics {
                             stateDescription =
                                 stringResource(R.string.set_size_value, (displayFraction * 100).roundToInt())
                         },

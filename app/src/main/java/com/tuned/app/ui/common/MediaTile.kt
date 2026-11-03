@@ -103,10 +103,11 @@ fun MediaTile(
     ) {
         BoxWithConstraints(Modifier.fillMaxWidth()) {
             val artHeight = if (shape == MediaTileShape.Wide) maxWidth * 9 / 16 else maxWidth
+            val artWidth = maxWidth
             Box {
                 Artwork(
                     url = artworkUrl,
-                    size = maxWidth,
+                    size = artWidth,
                     shape = if (shape == MediaTileShape.Circle) AppShape.full else AppShape.sm,
                     fallbackIcon = if (shape == MediaTileShape.Circle) Icons.Filled.Person else Icons.Filled.Album,
                     height = artHeight,
@@ -126,6 +127,7 @@ fun MediaTile(
                         )
                     }
                 }
+                val playDescription = stringResource(R.string.cmp_play)
                 if (onPlayClick != null) {
                     Box(
                         Modifier
@@ -135,7 +137,7 @@ fun MediaTile(
                             .clip(AppShape.full)
                             .background(colors.accent)
                             .clickable(role = Role.Button, onClick = onPlayClick)
-                            .semantics { contentDescription = stringResource(R.string.cmp_play) },
+                            .semantics { contentDescription = playDescription },
                         contentAlignment = Alignment.Center,
                     ) {
                         Icon(Icons.Filled.PlayArrow, contentDescription = null, tint = colors.onAccent, modifier = Modifier.size(Sizes.iconRow))

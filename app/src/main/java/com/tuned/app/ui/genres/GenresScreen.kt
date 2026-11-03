@@ -211,8 +211,8 @@ private fun GenresEmpty() {
             Modifier.size(56.dp).clip(RoundedCornerShape(18.dp)).background(MaterialTheme.colorScheme.primaryContainer),
             contentAlignment = Alignment.Center,
         ) {
-            androidx.compose.material3.Icon(
-                androidx.compose.material.icons.Icons.Filled.Category,
+            Icon(
+                Icons.Filled.Category,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onPrimaryContainer,
             )

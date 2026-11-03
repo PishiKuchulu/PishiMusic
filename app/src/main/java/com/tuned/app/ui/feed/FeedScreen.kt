@@ -467,7 +467,7 @@ fun FeedScreen(
                             )
                             FeedMediaRow(
                                 content = {
-                                    itemsIndexed(state.feedData.jumpBackIn, key = { index, track -> "${track.videoId}#$index" }) { index, track ->
+                                    itemsIndexed(state.feedData.jumpBackIn, key = { index, track -> "${track.name}|${track.artist.displayName}#$index" }) { index, track ->
                                         RecentTrackCard(
                                             track = track,
                                             onClick = { viewModel.playRecentQueue(state.feedData.jumpBackIn, index) },
@@ -678,7 +678,7 @@ fun FeedScreen(
                                     )
                                     FeedMediaRow(
                                         content = {
-                                            itemsIndexed(discoveryTracks, key = { index, track -> "${track.videoId}#$index" }) { index, track ->
+                                            itemsIndexed(discoveryTracks, key = { index, track -> "${track.key}#$index" }) { index, track ->
                                                 val playable = track.toPlayableTrack()
                                                 FeedMediaCard(
                                                     title = track.name,
@@ -852,7 +852,7 @@ fun FeedScreen(
                             )
                             FeedMediaRow(
                                 content = {
-                                    itemsIndexed(state.feedData.heavyRotation, key = { index, track -> "${track.videoId}#$index" }) { index, track ->
+                                    itemsIndexed(state.feedData.heavyRotation, key = { index, track -> "${track.key}#$index" }) { index, track ->
                                         FeedMediaCard(
                                             title = track.name,
                                             subtitle = ArtistHelper.primaryArtist(track.artist),

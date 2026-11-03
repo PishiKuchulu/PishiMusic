@@ -714,7 +714,7 @@ class LocalMusicLibrary @Inject constructor(
         // (lastModified 0 — fingerprints self-heal if it appears later)
         // instead of reporting the whole folder unreachable.
         val ok = queryChildren(projection, withModified = true) ||
-            queryChildren(projection.copyOf(4), withModified = false)
+            queryChildren(projection.sliceArray(0..3), withModified = false)
         if (!ok) return false
 
         val files = children.filter { it.mime != DocumentsContract.Document.MIME_TYPE_DIR }

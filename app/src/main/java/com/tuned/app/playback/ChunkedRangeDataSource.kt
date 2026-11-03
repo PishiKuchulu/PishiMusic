@@ -5,7 +5,7 @@ import androidx.media3.common.C
 import androidx.media3.datasource.DataSource
 import androidx.media3.datasource.DataSpec
 import androidx.media3.datasource.TransferListener
-import androidx.media3.datasource.http.HttpDataSource
+import androidx.media3.datasource.HttpDataSource
 
 /**
  * Wraps an upstream [DataSource] to issue chunked HTTP Range requests (~1 MB range chunks)

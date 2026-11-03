@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -14,6 +16,9 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.minimumInteractiveComponentSize
@@ -79,15 +84,15 @@ fun FilterChip(label: String, selected: Boolean, onClick: () -> Unit, modifier: 
         ) {
             // Selection is not colour-only: a check glyph gives colour-blind
             // users (and TalkBack, via cmp_selected) a second signal.
-            androidx.compose.foundation.layout.Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 if (selected) {
-                    androidx.compose.material3.Icon(
-                        androidx.compose.material.icons.Icons.Filled.Check,
+                    Icon(
+                        Icons.Filled.Check,
                         contentDescription = stringResource(R.string.cmp_selected),
                         tint = content,
                         modifier = Modifier.size(Sizes.iconInline),
                     )
-                    androidx.compose.foundation.layout.Spacer(Modifier.size(Space.xs))
+                    Spacer(Modifier.size(Space.xs))
                 }
                 Text(label, style = AppType.label, color = content)
             }

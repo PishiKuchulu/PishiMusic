@@ -47,6 +47,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.tuned.app.R
 import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import com.tuned.app.data.local.LyricsProvider
 import com.tuned.app.ui.common.EdgeToEdgeDialogWindow
 import com.tuned.app.ui.common.ExpressiveGroup
@@ -251,7 +252,7 @@ private fun SourceRow(
         // announce it in the row's semantics for TalkBack.
         modifier = Modifier
             .fillMaxWidth()
-            .androidx.compose.ui.semantics.semantics {
+            .semantics {
                 this.selected = isSelected
             },
     ) {
