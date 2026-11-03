@@ -1,0 +1,50 @@
+# Build output
+*.apk
+*.aar
+*.ap_
+*.aab
+*.dex
+*.class
+build/
+**/build/
+.gradle/
+.kotlin/
+.cxx/
+.externalNativeBuild/
+captures/
+
+# IDE
+.idea/
+*.iml
+.navigation/
+
+# Local configuration: SDK path and signing keys
+local.properties
+.env
+*.jks
+*.keystore
+*.p12
+*.pem
+keystore_credentials.txt
+credentials_backup*
+
+# Logs and OS files
+*.log
+*.pid
+.DS_Store
+Thumbs.db
+
+# Generated at build time from secrets, never committed
+app/src/main/cpp/SecretsBridge_generated.h
+
+# Provider modules are packaged at build time
+app/src/main/assets/modules/
+*.lwp
+provider.js
+provider.json
+
+# Tools other than the build's secret generator
+tools/*
+!tools/generate_native_secrets.py
+
+*.zip
