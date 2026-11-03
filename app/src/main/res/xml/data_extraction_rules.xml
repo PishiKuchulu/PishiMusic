@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="sharedpref" path="downloads_restore_prefs.xml" />
+        <!-- Session credentials live in this DataStore file; never back it up. -->
+        <exclude domain="file" path="datastore/lastwave_prefs.preferences_pb" />
+        <exclude domain="file" path="diagnostics/" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="sharedpref" path="downloads_restore_prefs.xml" />
+        <!-- A device transfer must not silently clone live sessions either;
+             the user signs in again on the new device. -->
+        <exclude domain="file" path="datastore/lastwave_prefs.preferences_pb" />
+        <exclude domain="file" path="diagnostics/" />
+    </device-transfer>
+</data-extraction-rules>

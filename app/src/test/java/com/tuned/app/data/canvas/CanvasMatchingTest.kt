@@ -1,0 +1,136 @@
+package com.tuned.app.data.canvas
+
+import com.google.common.truth.Truth.assertThat
+import org.junit.Test
+
+class CanvasMatchingTest {
+
+    @Test
+    fun testNormalizeForMatch() {
+        val raw = "Beyoncé - CRAZY IN LOVE (feat. JAY-Z)"
+        val normalized = raw.normalizeForMatch()
+        assertThat(normalized).isEqualTo("beyonce crazy in love feat jay z")
+    }
+
+    @Test
+    fun testSplitArtists() {
+        val artists1 = splitArtists("Taylor Swift feat. Post Malone")
+        assertThat(artists1).containsExactly("taylor swift", "post malone")
+
+        val artists2 = splitArtists("Daft Punk & Pharrell Williams")
+        assertThat(artists2).containsExactly("daft punk", "pharrell williams")
+
+        val artists3 = splitArtists("Marshmello x Khalid")
+        assertThat(artists3).containsExactly("marshmello", "khalid")
+    }
+
+    @Test
+    fun testCanvasArtworkMatches() {
+        val canvas = CanvasArtwork(
+            url = "https://example.com/loop.mp4",
+            title = "Crazy In Love",
+            artist = "Beyoncé ft. Jay-Z",
+            album = "Dangerously in Love",
+            source = CanvasSource.APPLE,
+        )
+
+        // Matching with minor punctuation/case variations
+        val isMatch = canvas.matches(
+            wantTitle = "Crazy in Love",
+            wantArtist = "Beyonce",
+            wantAlbum = "Dangerously In Love",
+        )
+        assertThat(isMatch).isTrue()
+
+        // Mismatched title should be rejected
+        val wrongTitle = canvas.matches(
+            wantTitle = "Halo",
+            wantArtist = "Beyonce",
+            wantAlbum = "Dangerously In Love",
+        )
+        assertThat(wrongTitle).isFalse()
+    }
+
+    @Test
+    fun testSpotifyCanvasIsCheckedAgainstTheTrack() {
+        val canvas = CanvasArtwork(
+            url = "https://example.com/loop.mp4",
+            title = "Crazy In Love",
+            artist = "Beyoncé, Jay-Z",
+            album = "Dangerously in Love",
+            source = CanvasSource.SPOTIFY,
+        )
+
+        assertThat(
+            canvas.matches(
+                wantTitle = "Crazy In Love",
+                wantArtist = "Beyoncé ft. Jay-Z",
+                wantAlbum = "Dangerously In Love",
+            ),
+        ).isTrue()
+
+        // A canvas for a different song is refused.
+        assertThat(
+            canvas.matches(
+                wantTitle = "Halo",
+                wantArtist = "Beyoncé",
+                wantAlbum = "Dangerously In Love",
+            ),
+        ).isFalse()
+
+        // So is one by a different artist.
+        assertThat(
+            canvas.matches(
+                wantTitle = "Crazy In Love",
+                wantArtist = "Adele",
+                wantAlbum = "Dangerously in Love",
+            ),
+        ).isFalse()
+    }
+
+    @Test
+    fun testSpotifyCanvasAcceptsTheSameReleasePackagedDifferently() {
+        val canvas = CanvasArtwork(
+            url = "https://example.com/loop.mp4",
+            title = "Crazy In Love",
+            artist = "Beyoncé",
+            album = "Dangerously in Love",
+            source = CanvasSource.SPOTIFY,
+        )
+
+        assertThat(
+            canvas.matches(
+                wantTitle = "Crazy In Love (Remastered 2011)",
+                wantArtist = "Beyonce",
+                wantAlbum = "Dangerously in Love",
+            ),
+        ).isTrue()
+
+        assertThat(
+            canvas.matches(
+                wantTitle = "Crazy In Love (feat. Jay-Z)",
+                wantArtist = "Beyoncé",
+                wantAlbum = "Dangerously in Love",
+            ),
+        ).isTrue()
+    }
+
+    @Test
+    fun testTitlesThatOnlyShareAWordAreNotTheSameSong() {
+        val canvas = CanvasArtwork(
+            url = "https://example.com/loop.mp4",
+            title = "Love",
+            artist = "Someone",
+            album = null,
+            source = CanvasSource.SPOTIFY,
+        )
+
+        assertThat(
+            canvas.matches(
+                wantTitle = "Love Story",
+                wantArtist = "Someone",
+                wantAlbum = null,
+            ),
+        ).isFalse()
+    }
+}

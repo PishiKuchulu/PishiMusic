@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <exclude domain="sharedpref" path="downloads_restore_prefs.xml" />
+    <!-- The main DataStore holds live session credentials (YouTube cookies,
+         Spotify tokens, Last.fm keys, addon URLs with embedded tokens). It
+         must never leave the device in a plaintext cloud backup. -->
+    <exclude domain="file" path="datastore/lastwave_prefs.preferences_pb" />
+    <!-- Crash/diagnostic logs can contain request metadata; keep them local. -->
+    <exclude domain="file" path="diagnostics/" />
+</full-backup-content>

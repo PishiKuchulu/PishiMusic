@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Matches TunedColors.bg (dark) so the splash screen never flashes a
+         different colour before Compose draws. -->
+    <color name="splash_background">#FF0B0B0C</color>
+
+    <!-- Adaptive icon background layer, paired with ic_launcher_foreground. -->
+    <color name="ic_launcher_background">#FF0B0B0C</color>
+</resources>
