@@ -80,12 +80,13 @@ jobs:
       # variant too.
       - name: Lint
         run: ./gradlew :app:lintDebug --stacktrace
-              - name: Upload lint report
-              if: always()
-              uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-              with:
-                name: lint-report
-                path: app/build/reports/lint-results-debug.*
+
+      - name: Upload lint report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: lint-report
+          path: app/build/reports/lint-results-debug.*
 
   release:
     name: Release build (ephemeral test key)
