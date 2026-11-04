@@ -99,6 +99,9 @@ class AppLocaleManager @Inject constructor(
     }
 
     private fun setFrameworkLocales(tag: String?) {
+        // LocaleManager exists only from API 33; the call site must be guarded
+        // for lint (NewApi) even though the body already catches LinkageError.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
         try {
             val manager = appContext.getSystemService(LocaleManager::class.java) ?: return
             manager.applicationLocales =

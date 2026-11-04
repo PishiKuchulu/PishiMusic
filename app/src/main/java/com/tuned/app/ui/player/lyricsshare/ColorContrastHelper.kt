@@ -204,6 +204,34 @@ object ColorContrastHelper {
 
 
     /**
+     * Returns a pair of top and bottom gradient colors for the Select Lyrics screen,
+     * maintaining high saturation and depth of the same hue without fading to black or grey.
+     */
+    fun getSelectScreenGradientColors(primaryColor: Int): Pair<Int, Int> {
+        val hsv = FloatArray(3)
+        AndroidColor.colorToHSV(primaryColor, hsv)
+        val hue = if (hsv[1] < 0.12f) 75f else hsv[0] // fallback to brand lime hue if input is grey
+        val sat = (hsv[1] * 1.35f).coerceIn(0.70f, 1.0f)
+        val topVal = 0.35f
+        val bottomVal = 0.50f
+        val top = AndroidColor.HSVToColor(0xFF, floatArrayOf(hue, sat, topVal))
+        val bottom = AndroidColor.HSVToColor(0xFF, floatArrayOf(hue, sat, bottomVal))
+        return Pair(top, bottom)
+    }
+
+    /**
+     * Derives a dark, rich hue-tinted text color for the solid white selected line pill.
+     */
+    fun getSelectedPillTextColor(primaryColor: Int): Int {
+        val hsv = FloatArray(3)
+        AndroidColor.colorToHSV(primaryColor, hsv)
+        val hue = if (hsv[1] < 0.12f) 75f else hsv[0]
+        val sat = 0.95f
+        val value = 0.22f
+        return AndroidColor.HSVToColor(0xFF, floatArrayOf(hue, sat, value))
+    }
+
+    /**
      * Blends an alpha foreground color over an opaque background to get an effective RGB.
      */
     fun blendOver(fgColor: Int, bgColor: Int): Int {

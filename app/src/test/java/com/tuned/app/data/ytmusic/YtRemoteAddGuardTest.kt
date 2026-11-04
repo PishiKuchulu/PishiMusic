@@ -77,7 +77,7 @@ class YtRemoteAddGuardTest {
                 applicationScope = scope,
             ),
         )
-        coEvery { manager.refresh() } returns Unit
+        coEvery { manager.refresh() } returns true
     }
 
     @After

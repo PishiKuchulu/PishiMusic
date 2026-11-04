@@ -47,3 +47,14 @@ private fun selectTrackVariant(item: HomeShelfItem.Track): HomeCardVariant {
     if (!item.caption.isNullOrBlank()) return HomeCardVariant.FEATURED
     return HomeCardVariant.SQUARE
 }
+
+/**
+ * Returns true when every item in a shelf resolves to [HomeCardVariant.FEATURED]
+ * — the big snapping "Your daily discover"-style carousel.
+ */
+fun isFeaturedShelf(items: List<HomeShelfItem>): Boolean =
+    items.isNotEmpty() && items.all { selectCardVariant(it) == HomeCardVariant.FEATURED }
+
+/** True when the shelf's items are playable tracks (drives the "Play all" pill). */
+fun shelfIsPlayableTracks(items: List<HomeShelfItem>): Boolean =
+    items.isNotEmpty() && items.all { it is HomeShelfItem.Track }
