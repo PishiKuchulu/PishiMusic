@@ -1003,7 +1003,7 @@
     <string name="toast_no_browser_lfm">No browser to open Last.fm</string>
     <string name="toast_no_browser_open_lfm">No browser to open Last.fm</string>
     <string name="toast_no_picker">No file picker is available</string>
-    <string name="toast_imported">Imported “%1$s”</string>
+    <string name="toast_imported">Imported “%1$s” (%2$d tracks)</string>
     <string name="toast_action_fail">Couldn\'t %1$s. Try again.</string>
     <string name="toast_unsupported">This phone doesn\'t support that.</string>
     <string name="toast_eq_fail">Couldn\'t apply the equalizer.</string>
@@ -1037,7 +1037,7 @@
     <string name="toast_backup_fail">Couldn\'t back up: %1$s</string>
     <string name="toast_backup_empty">Couldn\'t back up: nothing to save</string>
     <string name="toast_import_matching">Matching %1$s songs…</string>
-    <string name="toast_import_result">Imported “%1$s”</string>
+    <string name="toast_import_result">Imported “%1$s”: %2$d tracks, %3$d skipped</string>
     <string name="toast_import_fail">Couldn\'t import: %1$s</string>
     <string name="toast_excl_cleared">Hidden songs cleared</string>
     <string name="set_cat_audio">Audio and playback</string>

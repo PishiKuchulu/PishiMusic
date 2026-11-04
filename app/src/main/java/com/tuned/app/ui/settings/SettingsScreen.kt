@@ -1,5 +1,7 @@
 package com.tuned.app.ui.settings
 
+import android.annotation.SuppressLint
+
 import com.tuned.app.ui.common.sheetScrollGuard
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
@@ -133,6 +135,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.tuned.app.data.local.AppLanguage
@@ -146,7 +149,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.Canvas
-import java.util.Locale
 import com.tuned.app.ui.player.LocalMiniPlayerScrollClearance
 import com.tuned.app.R
 import com.tuned.app.data.update.AppUpdateManager
@@ -254,6 +256,9 @@ enum class SettingsTab(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+// The import-success toast is formatted inside the import callback with
+// runtime values; it cannot be resolved during composition.
+@SuppressLint("LocalContextGetResourceValueCall")
 fun SettingsScreen(
     onBack: () -> Unit = {},
     onLoggedOut: () -> Unit = {},
@@ -309,6 +314,9 @@ fun SettingsScreen(
     val lastFmAuthUrl by viewModel.lastFmAuthUrl.collectAsStateWithLifecycle()
     val lastFmConnecting by viewModel.lastFmConnecting.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val noBrowserLfmMessage = stringResource(R.string.toast_no_browser_lfm)
+    val noBrowserOpenLfmMessage = stringResource(R.string.toast_no_browser_open_lfm)
+    val noPickerMessage = stringResource(R.string.toast_no_picker)
 
     // Last.fm web auth (Settings → Integrations): open the auth URL in Custom
     // Tabs the moment SettingsViewModel produces one.
@@ -318,7 +326,7 @@ fun SettingsScreen(
                 androidx.browser.customtabs.CustomTabsIntent.Builder().build()
                     .launchUrl(context, android.net.Uri.parse(url))
             }.onFailure {
-                viewModel.showToast(context.getString(R.string.toast_no_browser_lfm))
+                viewModel.showToast(noBrowserLfmMessage)
                 viewModel.cancelLastFmConnect()
             }
         }
@@ -1404,7 +1412,7 @@ fun SettingsScreen(
                                 subtitle = if (misc.translationLanguage.isBlank()) {
                                     stringResource(R.string.set_translation_language_follows)
                                 } else {
-                                    translationLanguageName(misc.translationLanguage, Locale.getDefault())
+                                    translationLanguageName(misc.translationLanguage, LocalConfiguration.current.locales[0])
                                 },
                                 onClick = { showTranslationLanguageDialog = true },
                                 position = position,
@@ -1747,7 +1755,7 @@ fun SettingsScreen(
                                 androidx.browser.customtabs.CustomTabsIntent.Builder().build()
                                     .launchUrl(context, android.net.Uri.parse(LAST_FM_CREATE_KEY_URL))
                             }.onFailure {
-                                viewModel.showToast(context.getString(R.string.toast_no_browser_open_lfm))
+                                viewModel.showToast(noBrowserOpenLfmMessage)
                             }
                         },
                     )
@@ -1906,7 +1914,7 @@ fun SettingsScreen(
                                             onClick = {
                                                 runCatching {
                                                     csvPickerLauncher.launch(arrayOf("text/*", "text/csv", "application/csv", "audio/x-mpegurl", "application/x-mpegurl", "application/vnd.apple.mpegurl", "*/*"))
-                                                }.onFailure { viewModel.showToast(context.getString(R.string.toast_no_picker)) }
+                                                }.onFailure { viewModel.showToast(noPickerMessage) }
                                             },
                                             position = position,
                                             isHighlighted = (highlightedSettingId == "library.import_file"),
@@ -1934,7 +1942,7 @@ fun SettingsScreen(
                                 subtitle = stringResource(R.string.settings_backup_sub),
                                 onClick = {
                                     runCatching { backupLauncher.launch("tuned-backup-${System.currentTimeMillis()}.json") }
-                                        .onFailure { viewModel.showToast(context.getString(R.string.toast_no_picker)) }
+                                        .onFailure { viewModel.showToast(noPickerMessage) }
                                 },
                                 position = position,
                                 isHighlighted = (highlightedSettingId == "backup.create"),
@@ -1947,7 +1955,7 @@ fun SettingsScreen(
                                 subtitle = stringResource(R.string.settings_restore_sub),
                                 onClick = {
                                     runCatching { restoreLauncher.launch(arrayOf("*/*")) }
-                                        .onFailure { viewModel.showToast(context.getString(R.string.toast_no_picker)) }
+                                        .onFailure { viewModel.showToast(noPickerMessage) }
                                 },
                                 position = position,
                                 isHighlighted = (highlightedSettingId == "backup.restore"),

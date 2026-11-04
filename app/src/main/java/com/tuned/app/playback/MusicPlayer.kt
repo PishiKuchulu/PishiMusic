@@ -8778,6 +8778,7 @@ private fun PlayableTrack.withYoutubeArtwork(): PlayableTrack =
         copy(artworkUrl = "https://i.ytimg.com/vi/$videoId/hqdefault.jpg")
     } else this
 
+@OptIn(androidx.media3.common.util.UnstableApi::class)
 private fun PlayableTrack.toMediaItem(resolved: MusicPlayer.ResolvedStream? = null): MediaItem {
     val playbackUri = if (resolved != null) {
         Uri.parse(resolved.url)

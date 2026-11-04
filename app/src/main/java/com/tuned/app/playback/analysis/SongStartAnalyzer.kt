@@ -99,6 +99,7 @@ fun analyzeSongStart(source: DataSource, uri: Uri, cacheKey: String?): TempoEsti
 }
 
 /** Lets MediaExtractor read through a Media3 data source. */
+@OptIn(androidx.media3.common.util.UnstableApi::class)
 private class DataSourceReader(
     private val source: DataSource,
     private val uri: Uri,

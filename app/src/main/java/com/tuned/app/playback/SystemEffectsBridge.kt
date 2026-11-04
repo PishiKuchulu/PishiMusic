@@ -15,6 +15,7 @@ import androidx.media3.common.C
  * broadcast is fire-and-forget and exception-proof — a missing effect panel
  * or a hostile ROM must never disturb playback.
  */
+@OptIn(androidx.media3.common.util.UnstableApi::class)
 class SystemEffectsBridge(private val appContext: Context) {
 
     @Volatile private var lastSessionId: Int = C.AUDIO_SESSION_ID_UNSET

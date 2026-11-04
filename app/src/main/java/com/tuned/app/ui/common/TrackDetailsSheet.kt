@@ -761,7 +761,7 @@ fun TrackDetailsSheet(
                         currentSpecs.label?.let { DetailRow(label = stringResource(R.string.details_label), value = it) }
                         if (currentSpecs.trackNumber != null) {
                             val trackText = if (currentSpecs.trackCount != null && currentSpecs.trackCount > 0) {
-                                context.getString(R.string.details_count_of, currentSpecs.trackNumber, currentSpecs.trackCount)
+                                stringResource(R.string.details_count_of, currentSpecs.trackNumber, currentSpecs.trackCount)
                             } else {
                                 "${currentSpecs.trackNumber}"
                             }
@@ -769,7 +769,7 @@ fun TrackDetailsSheet(
                         }
                         if (currentSpecs.discNumber != null && (currentSpecs.discCount ?: 1) > 1) {
                             val discText = if (currentSpecs.discCount != null) {
-                                context.getString(R.string.details_count_of, currentSpecs.discNumber, currentSpecs.discCount)
+                                stringResource(R.string.details_count_of, currentSpecs.discNumber, currentSpecs.discCount)
                             } else {
                                 "${currentSpecs.discNumber}"
                             }

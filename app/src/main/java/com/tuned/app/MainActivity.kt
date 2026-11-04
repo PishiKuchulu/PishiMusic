@@ -2,6 +2,7 @@ package com.tuned.app
 
 import com.tuned.app.diagnostics.StartupTrail
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -323,6 +324,8 @@ class MainActivity : androidx.fragment.app.FragmentActivity() {
         }
     }
 
+    // Lint false positive: ComponentActivity.dispatchKeyEvent is marked @RestrictTo, but an override must call super — this super call is intentional.
+    @SuppressLint("RestrictedApi")
     override fun dispatchKeyEvent(event: android.view.KeyEvent): Boolean {
         // In the app's foreground the volume keys would otherwise only move the phone's volume.
         if (event.action == android.view.KeyEvent.ACTION_DOWN) {

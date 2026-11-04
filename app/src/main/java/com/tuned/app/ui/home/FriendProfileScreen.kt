@@ -350,7 +350,7 @@ fun FriendProfileScreen(
                                     ) { index, track ->
                                         FriendTrackRow(
                                             track = track,
-                                            badge = if (track.playCount > 0) context.getString(R.string.fr_badge_plays, track.playCount) else null,
+                                            badge = if (track.playCount > 0) stringResource(R.string.fr_badge_plays, track.playCount) else null,
                                             rank = index + 1,
                                             onClick = { viewModel.playQueue(tracks, index) },
                                             onLongClick = {

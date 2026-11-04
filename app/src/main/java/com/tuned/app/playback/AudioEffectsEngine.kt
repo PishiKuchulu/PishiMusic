@@ -42,6 +42,7 @@ import kotlinx.coroutines.sync.withLock
  * direct USB path takes over, call [setUsbExclusiveActive].
  */
 @Singleton
+@OptIn(androidx.media3.common.util.UnstableApi::class)
 class AudioEffectsEngine @Inject constructor(
     equalizerPreferences: EqualizerPreferences,
     settingsPreferences: SettingsPreferences,

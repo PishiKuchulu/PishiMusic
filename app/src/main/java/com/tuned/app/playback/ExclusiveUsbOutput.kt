@@ -34,6 +34,7 @@ import javax.inject.Singleton
  * The gold clock check is the DAC GET_CUR rate, not a successful open.
  */
 @Singleton
+@OptIn(androidx.media3.common.util.UnstableApi::class)
 class ExclusiveUsbOutput @Inject constructor(
     @ApplicationContext context: Context,
 ) {
@@ -1043,6 +1044,7 @@ class ExclusiveUsbOutput @Inject constructor(
         return false
     }
 
+    @OptIn(androidx.media3.common.util.UnstableApi::class)
     private companion object {
         const val TAG = "ExclusiveUsb"
         const val VOLUME_CHANGED_ACTION = "android.media.VOLUME_CHANGED_ACTION"

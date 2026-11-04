@@ -79,6 +79,10 @@ fun SpotifyLoginScreen(
     viewModel: SpotifyLoginViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
+    val spotifyConnectedMessage = stringResource(R.string.spotify_connected)
+    val spotifySaveFailedMessage = stringResource(R.string.spotify_save_failed)
+    val spotifyDisconnectedMessage = stringResource(R.string.spotify_disconnected)
+    val spotifyNoSessionMessage = stringResource(R.string.spotify_no_session)
     val isConnected by viewModel.isConnected.collectAsStateWithLifecycle()
     var isLoading by remember { mutableStateOf(true) }
     var hasError by remember { mutableStateOf(false) }
@@ -104,7 +108,7 @@ fun SpotifyLoginScreen(
             SpotifyLoginViewModel.Outcome.CONNECTED -> {
                 if (captured) return
                 captured = true
-                Toast.makeText(context, context.getString(R.string.spotify_connected), Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, spotifyConnectedMessage, Toast.LENGTH_SHORT).show()
                 onConnected()
             }
             SpotifyLoginViewModel.Outcome.SESSION_REFUSED -> {
@@ -117,7 +121,7 @@ fun SpotifyLoginScreen(
             }
             SpotifyLoginViewModel.Outcome.FAILED -> {
                 Log.w(LOG_TAG, "Failed to store sp_dc")
-                Toast.makeText(context, context.getString(R.string.spotify_save_failed), Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, spotifySaveFailedMessage, Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -199,7 +203,7 @@ fun SpotifyLoginScreen(
                                 captured = false
                                 capturedSpdc = null
                                 webViewRef?.loadUrl(SpotifyLoginUrls.LOGIN_URL)
-                                android.widget.Toast.makeText(context, context.getString(R.string.spotify_disconnected), android.widget.Toast.LENGTH_SHORT).show()
+                                android.widget.Toast.makeText(context, spotifyDisconnectedMessage, android.widget.Toast.LENGTH_SHORT).show()
                             },
                             colors = IconButtonDefaults.filledTonalIconButtonColors(
                                 containerColor = MaterialTheme.colorScheme.errorContainer,
@@ -478,7 +482,7 @@ fun SpotifyLoginScreen(
                             // post-login page has loaded.
                             val found = captureSpDc(lastUrl ?: webViewRef?.url)
                             if (!found) {
-                                Toast.makeText(context, context.getString(R.string.spotify_no_session), Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, spotifyNoSessionMessage, Toast.LENGTH_SHORT).show()
                             }
                         },
                     ) {

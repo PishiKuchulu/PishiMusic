@@ -11,9 +11,11 @@ import org.junit.After
 import org.junit.Test
 
 /**
- * Resume rules: a tap-through (< 10 s) is not a listen, a finished episode
+ * Resume rules: a tap-through (< 3 s) is not a listen, a finished episode
  * (> 95 %) does not resume, and everything in between resumes where it
- * stopped.
+ * stopped. (The resume floor was lowered from 10 s to 3 s so short episodes
+ * and previews resume too; the continue-listening surfacing floor stays
+ * 10 s — see PodcastProgressStore.MIN_CONTINUE_POSITION_MS.)
  */
 class PodcastProgressStoreTest {
 
@@ -34,14 +36,25 @@ class PodcastProgressStoreTest {
     }
 
     @Test
-    fun resumePositionMs_whenSavedPositionIsUnderTenSeconds_returnsZero() = runTest {
+    fun resumePositionMs_whenSavedPositionIsUnderThreeSeconds_returnsZero() = runTest {
+        coEvery { dao.get("video") } returns PodcastProgressEntity(
+            videoId = "video",
+            positionMs = 2_000L,
+            durationMs = 60_000L,
+        )
+
+        assertThat(store().resumePositionMs("video", 60_000L)).isEqualTo(0L)
+    }
+
+    @Test
+    fun resumePositionMs_whenSavedPositionIsAboveResumeFloor_returnsIt() = runTest {
         coEvery { dao.get("video") } returns PodcastProgressEntity(
             videoId = "video",
             positionMs = 9_000L,
             durationMs = 60_000L,
         )
 
-        assertThat(store().resumePositionMs("video", 60_000L)).isEqualTo(0L)
+        assertThat(store().resumePositionMs("video", 60_000L)).isEqualTo(9_000L)
     }
 
     @Test
@@ -78,7 +91,20 @@ class PodcastProgressStoreTest {
     }
 
     @Test
-    fun save_whenPositionIsUnderTenSeconds_doesNotWriteARow() = runTest {
+    fun save_whenPositionIsUnderThreeSeconds_doesNotWriteARow() = runTest {
+        store().save(
+            videoId = "video",
+            showId = "MPSPPLabc",
+            positionMs = 2_000L,
+            durationMs = 60_000L,
+            completed = false,
+        )
+
+        coVerify(exactly = 0) { dao.upsert(any()) }
+    }
+
+    @Test
+    fun save_whenPositionIsAboveResumeFloor_writesARow() = runTest {
         store().save(
             videoId = "video",
             showId = "MPSPPLabc",
@@ -87,7 +113,7 @@ class PodcastProgressStoreTest {
             completed = false,
         )
 
-        coVerify(exactly = 0) { dao.upsert(any()) }
+        coVerify(exactly = 1) { dao.upsert(any()) }
     }
 
     @Test

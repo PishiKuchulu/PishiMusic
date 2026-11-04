@@ -134,6 +134,7 @@ private class DownloadInterruptedException(message: String, cause: Throwable? = 
     IOException(message, cause)
 
 @Singleton
+@OptIn(androidx.media3.common.util.UnstableApi::class)
 class TrackDownloadManager @Inject constructor(
     @ApplicationContext private val context: Context,
     private val innerTube: InnerTubeMusicApi,

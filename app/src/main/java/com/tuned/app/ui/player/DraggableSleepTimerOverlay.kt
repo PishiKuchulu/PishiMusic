@@ -50,6 +50,7 @@ import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
@@ -74,15 +75,16 @@ fun DraggableSleepTimerOverlay(
         BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
             val density = LocalDensity.current
             val haptic = LocalHapticFeedback.current
+            val locale = LocalConfiguration.current.locales[0]
 
             val remainingMs = sleepTimerRemainingMs ?: 0L
             val hours = (remainingMs / 3600000).toInt()
             val minutes = ((remainingMs % 3600000) / 60000).toInt()
             val seconds = ((remainingMs % 60000) / 1000).toInt()
             val timeText = if (hours > 0) {
-                String.format(java.util.Locale.getDefault(), "%d:%02d:%02d", hours, minutes, seconds)
+                String.format(locale, "%d:%02d:%02d", hours, minutes, seconds)
             } else {
-                String.format(java.util.Locale.getDefault(), "%02d:%02d", minutes, seconds)
+                String.format(locale, "%02d:%02d", minutes, seconds)
             }
 
             // Circle dynamically scales with content length:

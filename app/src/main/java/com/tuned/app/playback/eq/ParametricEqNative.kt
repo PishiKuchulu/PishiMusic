@@ -10,6 +10,7 @@ import java.nio.ByteBuffer
  * [publish] sets the single process-wide configuration that both the native
  * DSP chain and every [DirectPcmEq] pick up on their next block.
  */
+@OptIn(androidx.media3.common.util.UnstableApi::class)
 object ParametricEqNative {
     private const val TAG = "ParametricEqNative"
 
@@ -39,6 +40,7 @@ object ParametricEqNative {
     /** True when an enabled configuration actually changes the signal. */
     fun isEngaged(): Boolean = isAvailable && runCatching { nativeIsEngaged() }.getOrDefault(false)
 
+    @OptIn(androidx.media3.common.util.UnstableApi::class)
     data class NativeFilter(
         val type: Int,
         val frequencyHz: Float,

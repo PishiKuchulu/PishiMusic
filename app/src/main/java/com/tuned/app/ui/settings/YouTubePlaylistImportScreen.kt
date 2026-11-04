@@ -124,6 +124,13 @@ fun YouTubePlaylistImportScreen(
     val keyboard = LocalSoftwareKeyboardController.current
     val haptic = LocalHapticFeedback.current
 
+    val defaultCsvName = stringResource(R.string.ytimp_default_csv)
+    val fileOpenFailMessage = stringResource(R.string.ytimp_file_open_fail)
+    val fileGoneMessage = stringResource(R.string.ytimp_file_gone)
+    val fileRomMessage = stringResource(R.string.ytimp_file_rom)
+    val noPickerMessage = stringResource(R.string.ytimp_no_picker)
+    val pickRomMessage = stringResource(R.string.ytimp_pick_rom)
+
     val quickPills = listOf("Top Hits 2024", "Pop Classics", "Lofi Chill", "Hip Hop Gold", "Workout Energy", "Deep Focus")
 
     // CSV Document Picker Launcher
@@ -132,19 +139,19 @@ fun YouTubePlaylistImportScreen(
     ) { uri: Uri? ->
         if (uri != null) {
             try {
-                val filename = queryFileName(context, uri) ?: context.getString(R.string.ytimp_default_csv)
+                val filename = queryFileName(context, uri) ?: defaultCsvName
                 val stream = context.contentResolver.openInputStream(uri)
                 if (stream != null) {
                     viewModel.importCsv(stream, filename) { saved ->
                         onImportSuccess(listOf(saved))
                     }
                 } else {
-                    viewModel.showError(context.getString(R.string.ytimp_file_open_fail))
+                    viewModel.showError(fileOpenFailMessage)
                 }
             } catch (error: Exception) {
-                viewModel.showError(context.getString(R.string.ytimp_file_gone))
+                viewModel.showError(fileGoneMessage)
             } catch (error: LinkageError) {
-                viewModel.showError(context.getString(R.string.ytimp_file_rom))
+                viewModel.showError(fileRomMessage)
             }
         }
     }
@@ -576,9 +583,9 @@ fun YouTubePlaylistImportScreen(
                                         try {
                                             csvPickerLauncher.launch(arrayOf("text/*", "text/csv", "application/csv", "audio/x-mpegurl", "application/x-mpegurl", "application/vnd.apple.mpegurl", "*/*"))
                                         } catch (error: Exception) {
-                                            viewModel.showError(context.getString(R.string.ytimp_no_picker))
+                                            viewModel.showError(noPickerMessage)
                                         } catch (error: LinkageError) {
-                                            viewModel.showError(context.getString(R.string.ytimp_pick_rom))
+                                            viewModel.showError(pickRomMessage)
                                         }
                                     },
                                     enabled = !state.isCsvImporting,

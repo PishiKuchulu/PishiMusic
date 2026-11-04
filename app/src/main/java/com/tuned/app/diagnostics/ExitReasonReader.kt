@@ -4,6 +4,7 @@ import android.app.ActivityManager
 import android.app.ApplicationExitInfo
 import android.content.Context
 import android.os.Build
+import androidx.annotation.RequiresApi
 
 /**
  * Reports process deaths that leave no Java stack trace behind.
@@ -69,6 +70,7 @@ object ExitReasonReader {
         else -> null
     }
 
+    @RequiresApi(Build.VERSION_CODES.R)
     private fun describe(exit: ApplicationExitInfo): String = buildString {
         appendLine("Reason      : ${exit.reason} (${reasonName(exit.reason)})")
         appendLine("Timestamp   : ${exit.timestamp}")
@@ -91,6 +93,7 @@ object ExitReasonReader {
      * sometimes carries the same text and sometimes carries nothing; either
      * way the report says which one happened.
      */
+    @RequiresApi(Build.VERSION_CODES.R)
     private fun readSystemTrace(exit: ApplicationExitInfo): String? = runCatching {
         exit.traceInputStream?.use { input ->
             input.bufferedReader().use { reader ->

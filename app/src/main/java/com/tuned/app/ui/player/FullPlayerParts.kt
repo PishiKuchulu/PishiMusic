@@ -1,6 +1,8 @@
 @file:OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 package com.tuned.app.ui.player
 
+import android.annotation.SuppressLint
+
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.layout.layout
@@ -1116,6 +1118,10 @@ internal fun PlayerErrorBanner(message: String, onRetry: () -> Unit, onDismiss: 
  * which is never shown for songs). See [ArtworkNormalizer.coverFor].
  */
 @Composable
+// One-shot snapshot: the pin is chosen once per track and the flow is
+// awaited properly inside the effect below; collecting here would re-pin
+// on every resolution.
+@SuppressLint("StateFlowValueCalledInComposition")
 internal fun rememberPinnedCover(track: PlayableTrack, artworkViewModel: ArtworkViewModel): String? {
     val key = remember(track.title, track.artist) { ArtworkNormalizer.cacheKey(track.title, track.artist) }
     val embedded = track.artworkUrl

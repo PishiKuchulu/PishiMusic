@@ -116,6 +116,7 @@ data class InternalDirectSession(
  * the codec still re-encodes after the bypass; a vendor DSP after the HAL is
  * unverifiable. Fails closed: every refusal keeps the regular mixer path.
  */
+@OptIn(androidx.media3.common.util.UnstableApi::class)
 @Singleton
 class InternalDirectOutput @Inject constructor(
     @ApplicationContext context: Context,
@@ -200,7 +201,10 @@ class InternalDirectOutput @Inject constructor(
     fun hasOpenStream(): Boolean = stream != null || track != null
 
     fun isAlive(): Boolean {
-        track?.let { return it.isAlive() }
+        // `track` is a DirectTrackStream (API 31+) and is only ever assigned
+        // on S+ (openDirectTrackLocked refuses below S); the explicit SDK
+        // guard restates that invariant where lint can see it.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) track?.let { return it.isAlive() }
         return stream?.counters()?.getOrNull(3) == 1L
     }
 
@@ -210,7 +214,7 @@ class InternalDirectOutput @Inject constructor(
     fun requiresResampling(): Boolean = _session.value?.resampled == true
 
     fun underruns(): Long {
-        track?.let { return it.underruns() }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) track?.let { return it.underruns() }
         return stream?.counters()?.getOrNull(2) ?: 0L
     }
 
@@ -327,9 +331,11 @@ class InternalDirectOutput @Inject constructor(
         if (activeSourceRateHz != format.sampleRate || activeSourceEncoding != srcEnc ||
             activeSourceChannels != format.channelCount
         ) return false
-        track?.let {
-            it.pause()
-            it.flush()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            track?.let {
+                it.pause()
+                it.flush()
+            }
         }
         stream?.let {
             it.pause()
@@ -495,16 +501,18 @@ class InternalDirectOutput @Inject constructor(
     fun write(buffer: ByteBuffer, presentationTimeUs: Long, media3Encoding: Int, channels: Int): Boolean {
         if (!buffer.hasRemaining()) return true
         val enc = encodingOf(media3Encoding) ?: return false
-        track?.let { direct ->
-            val anchor = if (startNeedsInit) direct.playedFrames() else 0L
-            val before = buffer.position()
-            val done = direct.write(buffer, enc, channels)
-            if (startNeedsInit && (done || buffer.position() != before)) {
-                startMediaTimeUs = presentationTimeUs.coerceAtLeast(0L)
-                baseConsumedFrames = anchor
-                startNeedsInit = false
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            track?.let { direct ->
+                val anchor = if (startNeedsInit) direct.playedFrames() else 0L
+                val before = buffer.position()
+                val done = direct.write(buffer, enc, channels)
+                if (startNeedsInit && (done || buffer.position() != before)) {
+                    startMediaTimeUs = presentationTimeUs.coerceAtLeast(0L)
+                    baseConsumedFrames = anchor
+                    startNeedsInit = false
+                }
+                return done
             }
-            return done
         }
         // Under openLock: this used to snapshot `stream` lock-free while
         // closeLocked() (under openLock) closed and nulled it, so an
@@ -533,28 +541,30 @@ class InternalDirectOutput @Inject constructor(
 
     fun play() {
         playing = true
-        track?.play()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) track?.play()
         stream?.start()
     }
 
     fun pause() {
         playing = false
-        track?.pause()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) track?.pause()
         stream?.pause()
     }
 
     /** Seek/stop: drop everything queued and re-anchor the media clock on the next write. */
     fun flush() {
-        track?.flush()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) track?.flush()
         stream?.flush()
         rebaseClock()
     }
 
     fun getCurrentPositionUs(): Long {
         if (startNeedsInit || deviceRateHz <= 0) return AudioSink.CURRENT_POSITION_NOT_SET
-        track?.let { direct ->
-            val played = (direct.playedFrames() - baseConsumedFrames).coerceAtLeast(0L)
-            return startMediaTimeUs + played * C.MICROS_PER_SECOND / deviceRateHz
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            track?.let { direct ->
+                val played = (direct.playedFrames() - baseConsumedFrames).coerceAtLeast(0L)
+                return startMediaTimeUs + played * C.MICROS_PER_SECOND / deviceRateHz
+            }
         }
         val target = stream ?: return AudioSink.CURRENT_POSITION_NOT_SET
         val consumed = target.counters()[0]
@@ -564,7 +574,7 @@ class InternalDirectOutput @Inject constructor(
 
     /** Audio still queued (ring / AudioTrack), or the device buffer still draining. */
     fun hasPendingData(): Boolean {
-        track?.let { return it.hasPendingData() }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) track?.let { return it.hasPendingData() }
         val target = stream ?: return false
         val buffered = target.counters()[1]
         if (buffered > 0L) {
@@ -578,9 +588,11 @@ class InternalDirectOutput @Inject constructor(
 
     /** Sink reset between items: keep the output for a same-format next item. */
     fun prepareForNextItem() {
-        track?.let {
-            it.pause()
-            it.flush()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            track?.let {
+                it.pause()
+                it.flush()
+            }
         }
         stream?.let {
             it.pause()
@@ -598,11 +610,12 @@ class InternalDirectOutput @Inject constructor(
     private fun rebaseClock() {
         startNeedsInit = true
         startMediaTimeUs = 0L
-        baseConsumedFrames = track?.playedFrames() ?: stream?.counters()?.getOrNull(0) ?: 0L
+        baseConsumedFrames = (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) track?.playedFrames() else null)
+            ?: stream?.counters()?.getOrNull(0) ?: 0L
     }
 
     private fun closeLocked() {
-        track?.release()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) track?.release()
         track = null
         stream?.let {
             it.closeStream()

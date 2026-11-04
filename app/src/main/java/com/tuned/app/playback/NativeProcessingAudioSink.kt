@@ -33,6 +33,7 @@ import java.nio.ByteOrder
  * no Float conversion, no libsoxr resampler, no DSP container, no AudioFX.
  * The source sample rate therefore drives the opened AudioTrack directly.
  */
+@OptIn(androidx.media3.common.util.UnstableApi::class)
 class NativeProcessingAudioSink(
     private val enhancedDelegate: DefaultAudioSink,
     private val fallbackDelegate: DefaultAudioSink,
@@ -1990,6 +1991,7 @@ class NativeProcessingAudioSink(
         nextOutputPresentationTimeUs = 0L
     }
 
+    @OptIn(androidx.media3.common.util.UnstableApi::class)
     private companion object {
         private const val MIN_WRITABLE_BYTES = 32_768
         const val TAG = "NativeAudioSink"

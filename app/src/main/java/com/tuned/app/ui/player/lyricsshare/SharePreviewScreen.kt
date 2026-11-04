@@ -307,11 +307,12 @@ fun SharePreviewScreen(
             }
 
             // YT Music Style Color Swatches Picker (with Cover swatch as first item in Lyrics mode)
+            val colorPickerDescription = stringResource(R.string.lyshare_color_picker_cd)
             LazyRow(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 12.dp)
-                    .semantics { contentDescription = context.getString(R.string.lyshare_color_picker_cd) },
+                    .semantics { contentDescription = colorPickerDescription },
                 contentPadding = PaddingValues(horizontal = 20.dp),
                 horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally),
                 verticalAlignment = Alignment.CenterVertically,

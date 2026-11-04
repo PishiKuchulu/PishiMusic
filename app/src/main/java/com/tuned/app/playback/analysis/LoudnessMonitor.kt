@@ -475,6 +475,7 @@ class BassCut(sampleRateHz: Int) {
  * native float path skips Media3's own AudioProcessor chain. Formats it can't read pass
  * untouched, and a read-only buffer is measured but not changed.
  */
+@OptIn(androidx.media3.common.util.UnstableApi::class)
 class PcmInputStage(private val loudness: LoudnessMonitor, private val vocals: VocalControl) {
     private var encoding = C.ENCODING_INVALID
     private var channels = 0

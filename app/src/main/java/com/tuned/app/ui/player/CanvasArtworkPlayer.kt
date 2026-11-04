@@ -415,6 +415,7 @@ private fun easedFadeGradient(startY: Float, endY: Float): LinearGradient {
     return LinearGradient(0f, startY, 0f, endY, colors, positions, Shader.TileMode.CLAMP)
 }
 
+@RequiresApi(Build.VERSION_CODES.S)
 private fun TextureView.setBottomFade(fraction: Float, bounds: IntSize, endPx: Float?) {
     val endY = endPx?.coerceIn(0f, bounds.height.toFloat()) ?: bounds.height.toFloat()
     if (fraction <= 0.001f || endY <= 0f) {

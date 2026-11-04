@@ -1,5 +1,7 @@
 package com.tuned.app.ui.common
 
+import android.annotation.SuppressLint
+
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Icon
@@ -39,6 +41,9 @@ import kotlinx.coroutines.flow.map
  *    caller's own background while still resolving.
  */
 @Composable
+// resolved.value is read once as the collectAsStateWithLifecycle
+// initialValue seed only; the flow itself is collected per key (see below).
+@SuppressLint("StateFlowValueCalledInComposition")
 fun ArtworkImage(
     name: String,
     artist: String,

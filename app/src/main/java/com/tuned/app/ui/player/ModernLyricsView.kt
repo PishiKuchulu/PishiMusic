@@ -1,5 +1,7 @@
 package com.tuned.app.ui.player
 
+import android.annotation.SuppressLint
+
 import androidx.compose.material.icons.outlined.Timer
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -257,6 +259,9 @@ private const val LYRIC_SUBLINE_OPEN_MS = 460
 private const val LYRIC_SUBLINE_CLOSE_MS = 260
 
 @Composable
+// Toast strings are built inside the translation coroutine with runtime
+// results; they cannot be resolved during composition.
+@SuppressLint("LocalContextGetResourceValueCall")
 fun ModernLyricsPanel(
     state: MusicPlayerState,
     player: MusicPlayer,
@@ -333,6 +338,9 @@ fun ModernLyricsPanel(
     // the shown mode, the loading flags and one shared reveal that grows all
     // sub-lines in and out together with the list.
     val translationContext = LocalContext.current
+    val translationUnavailableMessage = stringResource(R.string.ly_toast_translation_unavailable)
+    val alreadyRomanizedMessage = stringResource(R.string.ly_toast_already_romanized)
+    val romanizationUnavailableMessage = stringResource(R.string.ly_toast_romanization_unavailable)
     val translationScope = rememberCoroutineScope()
     val translationTrackKey = state.current?.let { track ->
         track.videoId ?: "${track.artist}|${track.title}"
@@ -437,7 +445,7 @@ fun ModernLyricsPanel(
                                 ),
                             )
                             LyricsTranslation.Result.Unavailable -> showLyricsToast(
-                                translationContext.getString(R.string.ly_toast_translation_unavailable),
+                                translationUnavailableMessage,
                             )
                         }
                     } finally {
@@ -474,10 +482,10 @@ fun ModernLyricsPanel(
                                 displayMode = LyricsDisplayMode.Romanized
                             }
                             LyricsTranslation.RomanizationResult.AlreadyRomanized -> showLyricsToast(
-                                translationContext.getString(R.string.ly_toast_already_romanized),
+                                alreadyRomanizedMessage,
                             )
                             LyricsTranslation.RomanizationResult.Unavailable -> showLyricsToast(
-                                translationContext.getString(R.string.ly_toast_romanization_unavailable),
+                                romanizationUnavailableMessage,
                             )
                         }
                     } finally {

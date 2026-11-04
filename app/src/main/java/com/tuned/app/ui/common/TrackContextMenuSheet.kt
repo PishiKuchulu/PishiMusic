@@ -1,5 +1,7 @@
 package com.tuned.app.ui.common
 
+import android.annotation.SuppressLint
+
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import android.content.Context
@@ -315,6 +317,9 @@ private fun buildLastFmUrl(target: TrackMenuTarget): String {
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+// The sleep-timer toast is formatted inside the onSet callback with the
+// runtime minute count; it cannot be resolved during composition.
+@SuppressLint("LocalContextGetResourceValueCall")
 fun TrackContextMenuSheet(
     target: TrackMenuTarget,
     capabilities: TrackMenuCapabilities,
@@ -487,6 +492,12 @@ fun TrackContextMenuSheet(
                             val isLocalFile = com.tuned.app.data.generate.LocalAudioFormats.localReferenceOrNull(playable.playbackUrl) != null
                             val downloadKey = com.tuned.app.data.download.TrackDownloadManager.makeDownloadKey(t.name, t.artist)
                             val isDownloading = activeDownloads[downloadKey]?.let { !it.isFinished } == true
+                            val playingNextMessage = stringResource(R.string.menu_playing_next)
+                            val addedToQueueMessage = stringResource(R.string.menu_added_queue)
+                            val pinAddedMessage = stringResource(R.string.pin_added)
+                            val pinRemovedMessage = stringResource(R.string.pin_removed)
+                            val copiedMessage = stringResource(R.string.menu_copied)
+                            val wontRecommendMessage = stringResource(R.string.menu_wont_recommend)
 
                             // Which song this menu is for.
                             SongMenuHeader(
@@ -505,12 +516,12 @@ fun TrackContextMenuSheet(
                                 onJam = { showJamSheet = true },
                                 onPlayNext = {
                                     musicPlayer.playNext(playable)
-                                    notify(context.getString(R.string.menu_playing_next))
+                                    notify(playingNextMessage)
                                     close()
                                 },
                                 onAddToQueue = {
                                     musicPlayer.addToQueue(playable)
-                                    notify(context.getString(R.string.menu_added_queue))
+                                    notify(addedToQueueMessage)
                                     close()
                                 },
                                 onAddToPlaylist = { addToPlaylist(playable); close() },
@@ -629,7 +640,7 @@ fun TrackContextMenuSheet(
                                                 position = pos,
                                             ) {
                                                 val now = pinsViewModel.toggle(pin)
-                                                notify(context.getString(if (now) R.string.pin_added else R.string.pin_removed))
+                                                notify(if (now) pinAddedMessage else pinRemovedMessage)
                                                 onDismiss()
                                             }
                                         }
@@ -649,7 +660,7 @@ fun TrackContextMenuSheet(
                                         add { pos ->
                                             MenuActionRow(Icons.Filled.ContentCopy, stringResource(R.string.menu_copy_song), position = pos) {
                                                 clipboard.setText(AnnotatedString("${t.name} - ${t.artist}"))
-                                                notify(context.getString(R.string.menu_copied))
+                                                notify(copiedMessage)
                                                 close()
                                             }
                                         }
@@ -687,7 +698,7 @@ fun TrackContextMenuSheet(
                                     add { pos ->
                                         MenuActionRow(Icons.Filled.ThumbDown, stringResource(R.string.menu_dont_recommend), danger = true, position = pos) {
                                             exclusionViewModel.exclude(t.name, t.artist)
-                                            notify(context.getString(R.string.menu_wont_recommend))
+                                            notify(wontRecommendMessage)
                                             close()
                                         }
                                     }

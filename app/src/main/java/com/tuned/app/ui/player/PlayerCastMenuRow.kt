@@ -47,6 +47,7 @@ import com.tuned.app.playback.MusicPlayer
 @Composable
 internal fun PlayerCastMenuRow(player: MusicPlayer) {
     val context = LocalContext.current
+    val castUnavailableMessage = stringResource(R.string.cast_unavailable)
     // State, not a remember() snapshot: a transient init failure used to stick
     // for the row's whole life. Tapping the row now retries initialization.
     var available by remember(player) { mutableStateOf(player.initializeCast()) }
@@ -55,7 +56,7 @@ internal fun PlayerCastMenuRow(player: MusicPlayer) {
         Modifier.fillMaxWidth().clickable {
             if (!available) available = player.initializeCast()
             if (available) routeButton?.performClick()
-            else Toast.makeText(context, context.getString(R.string.cast_unavailable), Toast.LENGTH_SHORT).show()
+            else Toast.makeText(context, castUnavailableMessage, Toast.LENGTH_SHORT).show()
         }.padding(horizontal = 12.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -90,6 +91,7 @@ internal fun PlayerCastMenuRow(player: MusicPlayer) {
 @Composable
 internal fun PlayerCastLauncher(player: MusicPlayer, requests: Int) {
     val context = LocalContext.current
+    val castUnavailableMessage = stringResource(R.string.cast_unavailable)
     var available by remember(player) { mutableStateOf(player.initializeCast()) }
     var routeButton by remember { mutableStateOf<MediaRouteButton?>(null) }
     if (available) {
@@ -109,6 +111,6 @@ internal fun PlayerCastLauncher(player: MusicPlayer, requests: Int) {
         // Retry init on each new request instead of caching a first failure.
         if (!available) available = player.initializeCast()
         if (available) routeButton?.performClick()
-        else Toast.makeText(context, context.getString(R.string.cast_unavailable), Toast.LENGTH_SHORT).show()
+        else Toast.makeText(context, castUnavailableMessage, Toast.LENGTH_SHORT).show()
     }
 }

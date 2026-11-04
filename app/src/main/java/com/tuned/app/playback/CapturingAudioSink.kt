@@ -19,6 +19,7 @@ import java.nio.ByteOrder
  * no seeks are issued, flush() only clears the ended flag, counters stay
  * monotonic. Supports PCM 16-bit and PCM float (converted to 16-bit).
  */
+@OptIn(androidx.media3.common.util.UnstableApi::class)
 class CapturingAudioSink(
     private val outFile: File,
 ) : AudioSink {

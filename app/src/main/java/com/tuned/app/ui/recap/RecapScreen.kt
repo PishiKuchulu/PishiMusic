@@ -55,6 +55,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.pluralStringResource
@@ -207,6 +208,7 @@ fun RecapScreen(
 @Composable
 private fun ChartHeader(state: RecapState, onSelectYear: (Int) -> Unit) {
     val colors = MaterialTheme.tunedColors
+    val locale = LocalConfiguration.current.locales[0]
     val number = remember(state.year) { Animatable(0f) }
     LaunchedEffect(state.year, state.minutes) {
         number.animateTo(state.minutes.toFloat(), tween(COUNT_UP_MS, easing = FastOutSlowInEasing))
@@ -219,8 +221,8 @@ private fun ChartHeader(state: RecapState, onSelectYear: (Int) -> Unit) {
             return@Column
         }
         BoxWithConstraints(Modifier.fillMaxWidth()) {
-            val digits = String.format(java.util.Locale.getDefault(), "%,d", number.value.toLong())
-            val finalLength = String.format(java.util.Locale.getDefault(), "%,d", state.minutes).length + 4
+            val digits = String.format(locale, "%,d", number.value.toLong())
+            val finalLength = String.format(locale, "%,d", state.minutes).length + 4
             val size = recapNumberSp(maxWidth.value, finalLength).sp
             Text(
                 stringResource(R.string.recap_chart_minutes, digits),

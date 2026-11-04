@@ -1,5 +1,7 @@
 package com.tuned.app.ui.settings.autoeq
 
+import android.annotation.SuppressLint
+
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.layout.PaddingValues
 import com.tuned.app.ui.theme.tunedColors
@@ -121,6 +123,9 @@ fun autoEqSummary(viewModel: AutoEqViewModel = hiltViewModel()): String {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+// The message collector shows string-resource IDs emitted by the ViewModel
+// inside a LaunchedEffect; there is no composition-time value to hoist.
+@SuppressLint("LocalContextGetResourceValueCall")
 fun AutoEqScreen(onBack: () -> Unit, viewModel: AutoEqViewModel = hiltViewModel()) {
     val context = LocalContext.current
     val enabled by viewModel.enabled.collectAsStateWithLifecycle()

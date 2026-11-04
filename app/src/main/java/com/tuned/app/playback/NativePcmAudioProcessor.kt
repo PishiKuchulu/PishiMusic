@@ -11,6 +11,7 @@ import java.nio.ByteOrder
  * The platform fallback preserves source rates through 384 kHz. Oboe output
  * instead targets its actual device rate through the native libsoxr HQ path.
  */
+@OptIn(androidx.media3.common.util.UnstableApi::class)
 class NativePcmAudioProcessor(
     private val engine: NativeAudioEngine,
     private val maxOutputSampleRateHz: Int = MAX_OUTPUT_SAMPLE_RATE_HZ,

@@ -27,6 +27,7 @@ data class OfflineKeys(
  * flows through the module envelope via the session manager's callback.
  */
 @Singleton
+@OptIn(androidx.media3.common.util.UnstableApi::class)
 class ModuleOfflineLicense @Inject constructor(
     private val drmFactory: ModuleDrmFactory,
 ) {

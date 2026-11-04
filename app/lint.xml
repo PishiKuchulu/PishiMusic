@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <!-- Widget picker previews are inflated by the system/launcher host with
+         the framework inflater, which cannot resolve the appcompat app:tint
+         attribute; android:tint on a framework ImageView is the only correct
+         form there (native since API 21; minSdk is 29). Scoped to exactly
+         these three files so UseAppTint keeps guarding app-inflated layouts. -->
+    <issue id="UseAppTint">
+        <ignore path="src/main/res/layout/widget_preview_medium.xml" />
+        <ignore path="src/main/res/layout/widget_preview_small.xml" />
+        <ignore path="src/main/res/layout/widget_preview_wide.xml" />
+    </issue>
+</lint>

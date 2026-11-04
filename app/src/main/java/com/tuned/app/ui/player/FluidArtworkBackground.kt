@@ -505,7 +505,7 @@ fun FluidArtworkBackground(
                         val cur = current ?: return@drawBehind
                         val prv = previous ?: cur
 
-                        if (agslRenderer != null) {
+                        if (agslRenderer != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                             drawIntoCanvas { canvas ->
                                 agslRenderer.render(
                                     canvas = canvas.nativeCanvas,

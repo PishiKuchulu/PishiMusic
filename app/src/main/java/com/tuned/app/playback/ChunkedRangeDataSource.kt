@@ -14,6 +14,7 @@ import androidx.media3.datasource.HttpDataSource
  * This prevents YouTube's server-side bandwidth throttling on open-ended Range requests
  * and prevents HTTP 403 on client profiles (such as IOS) that strictly mandate bounded Range headers.
  */
+@OptIn(androidx.media3.common.util.UnstableApi::class)
 class ChunkedRangeDataSource(
     private val upstream: DataSource,
     private val chunkSize: Long = DEFAULT_CHUNK_SIZE,

@@ -87,6 +87,7 @@ internal fun AddToPlaylistDialog(
     var isCheckingDuplicates by remember(track) { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
+    val duplicateCheckFailedMessage = stringResource(com.tuned.app.R.string.toast_action_fail, "check for duplicates")
     val trackKey = remember(track.title, track.artist) { track.toGeneratedTrack().key }
     /** Playlists already containing this track, computed once per list change. */
     val playlistsContainingTrack = remember(sanitizedPlaylists, trackKey, track.title, track.artist) {
@@ -150,7 +151,7 @@ internal fun AddToPlaylistDialog(
                 // the user believed the check had passed.
                 android.widget.Toast.makeText(
                     context,
-                    context.getString(com.tuned.app.R.string.toast_action_fail, "check for duplicates"),
+                    duplicateCheckFailedMessage,
                     android.widget.Toast.LENGTH_LONG,
                 ).show()
                 onAdd(playlistIds, emptySet())

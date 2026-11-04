@@ -30,10 +30,19 @@ class LocalAlbumsTest {
     @Test
     fun coverAndArtistComeFromTheSongs() {
         val album = localAlbums(
-            listOf(song("A", "Y", 1), song("B", "Y", 2, art = "cover"), song("C", "Y", 3, artist = "Guest")),
+            listOf(song("A", "Y", 1), song("B", "Y", 2, art = "cover"), song("C", "Y", 3)),
         ).single()
         assertThat(album.artworkUrl).isEqualTo("cover")
         assertThat(album.artist).isEqualTo("Kanye West")
+    }
+
+    @Test
+    fun sameTitleFromDifferentArtistsStaysSeparate() {
+        val albums = localAlbums(
+            listOf(song("A", "Y", 1), song("B", "Y", 1, artist = "Guest")),
+        )
+        assertThat(albums).hasSize(2)
+        assertThat(albums.map { it.artist }).containsExactly("Guest", "Kanye West")
     }
 
     @Test

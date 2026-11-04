@@ -31,6 +31,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -54,7 +55,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
-import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -165,7 +165,7 @@ private fun ExcludedSongRow(
     val artist = exclusion.artistName.ifBlank {
         legacyParts.getOrNull(1).orEmpty().legacyDisplayName("Unknown artist")
     }
-    val date = SimpleDateFormat("MMM d, yyyy", Locale.getDefault())
+    val date = SimpleDateFormat("MMM d, yyyy", LocalConfiguration.current.locales[0])
         .format(Date(exclusion.excludedAtMillis))
 
     // No card behind the row: it sits on the page like the other lists.

@@ -60,6 +60,7 @@ data class ReplayGainTags(
  * no resampling. With no tags, or when [LoudnessMode.OFF] is selected, the
  * correction is exactly 0 dB so the signal passes through unchanged.
  */
+@OptIn(androidx.media3.common.util.UnstableApi::class)
 object LoudnessNormalizer {
 
     /**

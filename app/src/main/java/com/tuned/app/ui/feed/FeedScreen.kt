@@ -251,10 +251,11 @@ fun FeedScreen(
             viewModel.loadMoreHomeShelves()
         }
     }
+    val retryActionLabel = stringResource(R.string.feed_retry)
     LaunchedEffect(state.error, hasFeedContent) {
         val error = state.error ?: return@LaunchedEffect
         if (hasFeedContent) {
-            val result = snackbarHostState.showSnackbar(error, actionLabel = context.getString(R.string.feed_retry), withDismissAction = true)
+            val result = snackbarHostState.showSnackbar(error, actionLabel = retryActionLabel, withDismissAction = true)
             viewModel.dismissError()
             if (result == SnackbarResult.ActionPerformed) viewModel.refresh()
         }
@@ -1611,18 +1612,18 @@ internal fun HomeChipsSkeleton() {
 
 @Composable
 private fun FeedFooter(lastUpdatedMillis: Long) {
-    val context = LocalContext.current
-    val label = remember(lastUpdatedMillis) {
-        if (lastUpdatedMillis <= 0L) context.getString(R.string.feed_footer_default)
+    val defaultLabel = stringResource(R.string.feed_footer_default)
+    val timeText = remember(lastUpdatedMillis) {
+        if (lastUpdatedMillis <= 0L) null
         else try {
-            val time = java.time.Instant.ofEpochMilli(lastUpdatedMillis)
+            java.time.Instant.ofEpochMilli(lastUpdatedMillis)
                 .atZone(java.time.ZoneId.systemDefault())
                 .format(java.time.format.DateTimeFormatter.ofPattern("h:mm a"))
-            context.getString(R.string.feed_footer_updated, time)
         } catch (_: Exception) {
-            context.getString(R.string.feed_footer_default)
+            null
         }
     }
+    val label = timeText?.let { stringResource(R.string.feed_footer_updated, it) } ?: defaultLabel
     Box(
         modifier = Modifier
             .fillMaxWidth()

@@ -89,6 +89,7 @@ fun JamSheet(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val clipboard = LocalClipboardManager.current
     val context = LocalContext.current
+    val jamCodeCopiedMessage = stringResource(R.string.jam_code_copied)
 
     var chatInputText by remember { mutableStateOf("") }
 
@@ -302,7 +303,7 @@ fun JamSheet(
                             OutlinedButton(
                                 onClick = {
                                     clipboard.setText(AnnotatedString(uiState.roomCode))
-                                    Toast.makeText(context, context.getString(R.string.jam_code_copied), Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, jamCodeCopiedMessage, Toast.LENGTH_SHORT).show()
                                 },
                                 shape = RoundedCornerShape(10.dp),
                             ) {
