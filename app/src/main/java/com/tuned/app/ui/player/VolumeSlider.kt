@@ -309,6 +309,9 @@ fun VolumeSlider(
                     )
                 }
 
+                // stringResource is @Composable: it cannot be called inside the
+                // semantics {} block below, so resolve the description here.
+                val sizeValueDescription = stringResource(R.string.set_size_value, (displayFraction * 100).roundToInt())
                 Slider(
                     value = displayFraction,
                     onValueChange = { fraction ->
@@ -333,8 +336,7 @@ fun VolumeSlider(
                     modifier = Modifier
                         .fillMaxSize()
                         .semantics {
-                            stateDescription =
-                                stringResource(R.string.set_size_value, (displayFraction * 100).roundToInt())
+                            stateDescription = sizeValueDescription
                         },
                     colors = SliderDefaults.colors(
                         thumbColor = Color.Transparent,
