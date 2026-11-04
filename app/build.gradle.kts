@@ -328,6 +328,12 @@ dependencies {
     implementation(libs.hilt.navigation.compose)
 
     implementation(libs.kotlinx.coroutines.android)
+    // AppRouteNavigator's route whitelist is computed from
+    // Screen::class.sealedSubclasses, which is a kotlin-reflect API: without
+    // this dependency the singleton's initializer throws
+    // KotlinReflectionNotSupportedError on first construction (launch crash,
+    // on-device report 2026-11-04, FIX-LOG 102).
+    implementation(libs.kotlin.reflect)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.serialization.protobuf)
 
