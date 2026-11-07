@@ -145,6 +145,20 @@ jobs:
       # hard-fails any release build when no key is configured, so a
       # missing secret fails this job loudly instead of shipping a
       # test-signed or debug-signed "release".
+      # Fail fast (seconds) if the key/password pair does not open: the
+      # first signed run's corrupted secret value otherwise surfaced only
+      # as a PKCS12 integrity failure 10 minutes into the Gradle build.
+      - name: Verify signing key opens
+        env:
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          RELEASE_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
+          RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+        run: |
+          echo "$SIGNING_KEY" | base64 -d > "$RUNNER_TEMP/check.p12"
+          keytool -list -keystore "$RUNNER_TEMP/check.p12" -storetype PKCS12 -storepass "$RELEASE_STORE_PASSWORD" -alias "$RELEASE_KEY_ALIAS" > /dev/null
+          rm -f "$RUNNER_TEMP/check.p12"
+          echo "Signing key opens with the configured password and alias."
+
       - name: Build signed release APK
         env:
           SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
