@@ -95,7 +95,7 @@ These go in `.env` (see `.env.example`):
 |---|---|
 | `DISCORD_APPLICATION_ID` | Shows what you're playing on Discord. Off when empty. |
 | `JAM_SERVER_URL` | Turns on Jam, listening together, against your own server. Hidden when empty. |
-| `UPDATE_GITHUB_REPO` | `owner/repo` to check for new releases. Off when empty. |
+| `UPDATE_GITHUB_REPO` | `owner/repo` to check for new releases. When empty it defaults to this project's own repository (`PishiKuchulu/PishiMusic`), so shipped builds check for updates out of the box. |
 
 
 ### 3. Release builds
