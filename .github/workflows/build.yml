@@ -6,6 +6,7 @@ permissions:
 on:
   push:
     branches: [ main ]
+    tags: [ 'v*' ]
     paths-ignore:
       - '**.md'
       - 'docs/**'
@@ -34,6 +35,23 @@ jobs:
       - name: Unit tests
         run: ./gradlew :app:testDebugUnitTest --stacktrace
 
+      # AUD-001 fix: pin the debug signing identity across runs. Without a
+      # restored keystore, every fresh runner generates its own
+      # ~/.android/debug.keystore, and successive debug APKs are signed by
+      # different keys — Android then refuses to install a new build over
+      # the previous one. Fail loudly when the secret is missing instead of
+      # silently shipping a randomly-signed APK.
+      - name: Restore pinned debug keystore
+        env:
+          DEBUG_KEYSTORE_B64: ${{ secrets.PISHIMUSIC_DEBUG_KEYSTORE_BASE64 }}
+        run: |
+          if [ -z "$DEBUG_KEYSTORE_B64" ]; then
+            echo "::error::PISHIMUSIC_DEBUG_KEYSTORE_BASE64 is not set; refusing to build a debug APK with a random per-runner key."
+            exit 1
+          fi
+          mkdir -p "$HOME/.android"
+          echo "$DEBUG_KEYSTORE_B64" | base64 -d > "$HOME/.android/debug.keystore"
+
       - name: Build debug APK
         run: ./gradlew :app:assembleDebug --stacktrace
 
@@ -43,20 +61,36 @@ jobs:
           name: pishimusic-debug
           path: app/build/outputs/apk/debug/*.apk
 
-      # Rolling debug release: every push to main republishes the debug APK
-      # under the fixed `debug-latest` tag so there is always a direct
-      # download link (Releases -> "PishiMusic — latest debug build").
-      - name: Publish debug APK to Releases
-        if: github.event_name == 'push'
+  # AUD-002 fix: publishing is its own job and runs only when build, lint
+  # and release ALL pass (previously it was a step inside `build` and
+  # shipped even on lint-red runs). While lint is red by an open decision,
+  # this gate intentionally holds debug-latest at the last gated build.
+  publish:
+    name: Publish debug APK (gated)
+    needs: [build, lint, release]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download debug APK
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh run download "${{ github.run_id }}" -n pishimusic-debug -D debug-apk
+
+      # Rolling debug release: every gated push to main republishes the
+      # debug APK under the fixed `debug-latest` tag so there is always a
+      # direct download link (Releases -> "PishiMusic — latest debug build").
+      - name: Publish debug APK to Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
         run: |
           if ! gh release view debug-latest >/dev/null 2>&1; then
             gh release create debug-latest \
               --title "PishiMusic — latest debug build" \
               --notes "Rolling debug build from the main branch, published by CI."
           fi
-          gh release upload debug-latest app/build/outputs/apk/debug/*.apk --clobber
+          gh release upload debug-latest debug-apk/*.apk --clobber
 
   lint:
     name: Lint
@@ -89,7 +123,7 @@ jobs:
           path: app/build/reports/lint-results-debug.*
 
   release:
-    name: Release build (ephemeral test key)
+    name: Release build (signed)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -105,26 +139,56 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      # CI-only throwaway keystore: exercises R8 shrinking and the
-      # release signing guard end-to-end without any real key material.
-      # The key is generated on the runner and never leaves it.
-      - name: Generate ephemeral CI keystore
-        run: |
-          keytool -genkeypair -v -keystore "$RUNNER_TEMP/ci-release.jks" \
-            -alias release_key -keyalg RSA -keysize 2048 -validity 30 \
-            -storepass ci-test-password -keypass ci-test-password \
-            -dname "CN=Tuned CI, O=CI, C=US"
-
-      - name: Build release APK with test key
+      # Real signing identity (keystore created 2026-11-08; backup in the
+      # owner's Drive "Signing Keys" folder as pishimusic-release.p12).
+      # app/build.gradle.kts decodes SIGNING_KEY (base64) itself and
+      # hard-fails any release build when no key is configured, so a
+      # missing secret fails this job loudly instead of shipping a
+      # test-signed or debug-signed "release".
+      - name: Build signed release APK
         env:
-          RELEASE_STORE_FILE: ${{ runner.temp }}/ci-release.jks
-          RELEASE_STORE_PASSWORD: ci-test-password
-          RELEASE_KEY_ALIAS: release_key
-          RELEASE_KEY_PASSWORD: ci-test-password
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          RELEASE_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
+          RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
         run: ./gradlew :app:assembleRelease --stacktrace
 
-      - name: Upload release APK
+      # The release certificate this project's update channel is pinned to.
+      # Every signer digest printed for every APK must equal it exactly.
+      - name: Verify signer and write checksums
+        env:
+          EXPECTED_SIGNER: "173d5fc9f8fba9c54aa665fcf08a3b1a981ed963706662c9649bc2e56decdada"
+        run: |
+          APKSIGNER=$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -1)
+          echo "Using $APKSIGNER"
+          for apk in app/build/outputs/apk/release/*.apk; do
+            digests=$("$APKSIGNER" verify --print-certs "$apk" | grep -oE 'certificate SHA-256 digest: [0-9a-f]+' | awk '{print $NF}' | sort -u)
+            if [ "$digests" != "$EXPECTED_SIGNER" ]; then
+              echo "::error::Unexpected signer for $apk: [$digests]"
+              exit 1
+            fi
+            (cd "$(dirname "$apk")" && sha256sum "$(basename "$apk")" > "$(basename "$apk").sha256")
+            echo "Signer OK: $apk"
+          done
+
+      - name: Upload signed release APK
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: pishimusic-release-ci-test-key
-          path: app/build/outputs/apk/release/*.apk
+          name: pishimusic-release-signed
+          path: |
+            app/build/outputs/apk/release/*.apk
+            app/build/outputs/apk/release/*.apk.sha256
+
+      # Tag pushes (v*) publish the signed build as a GitHub Release.
+      - name: Publish signed release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          tag="${GITHUB_REF_NAME}"
+          if ! gh release view "$tag" >/dev/null 2>&1; then
+            gh release create "$tag" \
+              --title "PishiMusic $tag" \
+              --notes "Signed release build, published by CI."
+          fi
+          gh release upload "$tag" app/build/outputs/apk/release/*.apk app/build/outputs/apk/release/*.apk.sha256 --clobber
